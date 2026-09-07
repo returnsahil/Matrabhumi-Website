@@ -60,7 +60,16 @@ main {
 }
 
 .hero {
-  padding: 96px 0;
+  padding: 120px 0;
+}
+
+.hero-label {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .hero h2 {
@@ -68,14 +77,69 @@ main {
   margin: 0 0 20px;
   font-size: clamp(40px, 7vw, 72px);
   line-height: 1.05;
+  letter-spacing: -2px;
 }
 
-.hero p {
+.hero-description {
   max-width: 600px;
   margin: 0;
   color: #4b5563;
   font-size: 18px;
   line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid #111827;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: #111827;
+}
+
+.primary-button:hover {
+  background: #374151;
+}
+
+.secondary-button {
+  color: #111827;
+  background: #ffffff;
+}
+
+.secondary-button:hover {
+  background: #f3f4f6;
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+  outline: 3px solid #9ca3af;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 80px 0;
+  }
+
+  .hero h2 {
+    letter-spacing: -1px;
+  }
 }
 
 .footer {

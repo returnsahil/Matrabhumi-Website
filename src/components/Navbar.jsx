@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function Navbar() {
   return (
     <header className="navbar">
@@ -6,21 +8,21 @@ function Navbar() {
       <nav aria-label="Main navigation">
         <ul className="nav-links">
           <li>
-            <a href="#home">Home</a>
+            <Link to="/">Home</Link>
           </li>
           <li>
-            <a href="#about">About</a>
+            <Link to="/about">About</Link>
           </li>
           <li>
-            <a href="#projects">Projects</a>
+            <Link to="/projects">Projects</Link>
           </li>
           <li>
-            <a href="#contact">Contact</a>
+            <Link to="/contact">Contact</Link>
           </li>
         </ul>
       </nav>
     </header>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

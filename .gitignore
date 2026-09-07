@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+# Temporary reference assets not used by the website
+reference-images/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
