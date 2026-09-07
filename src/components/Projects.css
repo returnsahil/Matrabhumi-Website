@@ -1,0 +1,14 @@
+.products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.project-card {
+  min-height: 100vh;
+  width: min(90%, 800px);
+  justify-self: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
