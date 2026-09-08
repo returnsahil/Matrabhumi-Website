@@ -42,10 +42,11 @@ const projects = [
 function Projects() {
   return (
     <section id="projects">
-      <header>
-        <p>Selected Work</p>
-        <h1>Our Projects</h1>
-        <p>Explore some of the spaces designed and created by Matrabhumi.</p>
+      <header className="projects-header">
+        <h1 className="projects-label">Selected Work</h1>
+        <p className="project-quote">
+          A house is built with materials. A home is built with feeling.
+        </p>
       </header>
       <div className="projects-grid">
         {projects.map((project) => (
