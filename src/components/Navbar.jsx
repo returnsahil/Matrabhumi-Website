@@ -1,23 +1,37 @@
-import { Link } from "react-router";
-
+import { NavLink } from "react-router";
+import { useState } from "react";
 function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header className="navbar">
       <h1 className="brand">Matrabhumi</h1>
-
-      <nav aria-label="Main navigation">
+      <button
+        className="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        ☰
+      </button>
+      <nav
+        className={menuOpen ? "nav-menu open" : "nav-menu"}
+        aria-label="Main navigation"
+      >
         <ul className="nav-links">
           <li>
-            <Link to="/">Home</Link>
+            <NavLink to="/" end>
+              Home
+            </NavLink>
           </li>
           <li>
-            <Link to="/about">About</Link>
+            <NavLink to="/about">About</NavLink>
           </li>
           <li>
-            <Link to="/projects">Projects</Link>
+            <NavLink to="/projects">Projects</NavLink>
           </li>
           <li>
-            <Link to="/contact">Contact</Link>
+            <NavLink to="/contact">Contact</NavLink>
           </li>
         </ul>
       </nav>

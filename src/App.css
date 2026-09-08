@@ -4,6 +4,18 @@
   flex-direction: column;
 }
 
+.brand {
+  margin: 0;
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand::after {
+  content: ".";
+  color: #c49a45;
+}
 .navbar,
 .hero,
 .footer {
@@ -47,21 +59,84 @@
   color: #ffffff;
   font-weight: 600;
   text-decoration: none;
+  display: inline-block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.nav-links a[aria-current="page"] {
+  color: #c49a45;
+  background-color: rgba(196, 154, 69, 0.12);
+}
+.nav-links a:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.nav-links a:hover {
-  color: #6b7280;
+.menu-toggle {
+  display: none;
 }
 
 @media (max-width: 600px) {
   .navbar {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    row-gap: 0;
+    padding: 14px 16px;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    color: #ffffff;
+    background: transparent;
+    border: 0;
+    font-size: 24px;
+    cursor: pointer;
+    transition:
+      color 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .menu-toggle[aria-expanded="true"] {
+    color: #c49a45;
+    transform: rotate(90deg);
+  }
+
+  .nav-menu {
+    display: block;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition:
+      max-height 0.3s ease,
+      opacity 0.2s ease,
+      transform 0.3s ease;
+  }
+
+  .nav-menu.open {
+    max-height: 260px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
   .nav-links {
-    flex-wrap: wrap;
-    gap: 12px 20px;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 10px;
+  }
+
+  .nav-links a {
+    width: 100%;
   }
 }
 
@@ -110,8 +185,13 @@ main {
     rgba(255, 255, 255, 0.12)
   );
 }
-
-.hero:hover .hero-image {
+.hero-content {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  max-width: 700px;
+}
+.hero:has(.hero-content:hover) .hero-image {
   filter: blur(3px);
   transform: scale(1.02);
 }
