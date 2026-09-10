@@ -12,7 +12,7 @@ function Navbar() {
         aria-expanded={menuOpen}
         onClick={() => setMenuOpen(!menuOpen)}
       >
-        ☰
+        {menuOpen ? "✕" : "☰ और जानें"}
       </button>
       <nav
         className={menuOpen ? "nav-menu open" : "nav-menu"}
@@ -20,18 +20,24 @@ function Navbar() {
       >
         <ul className="nav-links">
           <li>
-            <NavLink to="/" end>
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}>
               Home
             </NavLink>
           </li>
           <li>
-            <NavLink to="/about">About</NavLink>
+            <NavLink to="/about" onClick={() => setMenuOpen(false)}>
+              About
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/projects">Projects</NavLink>
+            <NavLink to="/projects" onClick={() => setMenuOpen(false)}>
+              Projects
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/contact">Contact</NavLink>
+            <NavLink to="/contact" onClick={() => setMenuOpen(false)}>
+              Contact
+            </NavLink>
           </li>
         </ul>
       </nav>

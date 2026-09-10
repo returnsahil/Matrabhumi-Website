@@ -20,6 +20,9 @@ dist-ssr
 # Temporary reference assets not used by the website
 reference-images/
 
+# Local Codex guidance
+/AGENTS.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

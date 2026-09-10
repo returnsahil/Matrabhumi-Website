@@ -1,0 +1,195 @@
+.contact-page {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 96px 0 112px;
+  color: #111827;
+}
+
+.contact-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.5fr);
+  gap: 28px 64px;
+  align-items: end;
+}
+
+.contact-label {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #9a762f;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.contact-intro h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.contact-intro > p:last-child {
+  max-width: 380px;
+  margin: 0 0 6px;
+  color: #596273;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.contact-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 64px;
+}
+
+.contact-option {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+  padding: 22px;
+  color: #28313f;
+  text-decoration: none;
+  border: 1px solid #dfe3e8;
+  border-radius: 12px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.contact-option:hover {
+  color: #111827;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+}
+
+.contact-option:focus-visible,
+.social-buttons button:focus-visible {
+  outline: 3px solid #c49a45;
+  outline-offset: 3px;
+}
+
+.contact-option > svg {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+}
+
+.contact-option--whatsapp > svg {
+  color: #2f6f55;
+}
+
+.contact-option span {
+  min-width: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.contact-option small {
+  display: block;
+  margin-bottom: 6px;
+  color: #737c89;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.contact-socials {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  margin-top: 72px;
+  padding-top: 28px;
+  border-top: 1px solid #dfe3e8;
+}
+
+.contact-socials > p {
+  margin: 0;
+  color: #596273;
+  font-weight: 700;
+}
+
+.social-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.social-buttons button {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 15px;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #dfe3e8;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.social-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.social-buttons svg {
+  width: 17px;
+  height: 17px;
+}
+
+@media (max-width: 800px) {
+  .contact-page {
+    padding: 64px 0 80px;
+  }
+
+  .contact-intro,
+  .contact-options {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-label {
+    grid-column: auto;
+  }
+
+  .contact-options {
+    margin-top: 44px;
+  }
+
+  .contact-socials {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .social-buttons button {
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .social-buttons button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+}

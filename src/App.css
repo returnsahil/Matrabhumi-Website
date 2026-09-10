@@ -273,11 +273,171 @@ main {
 }
 
 .footer {
-  padding: 24px 0;
+  margin-top: 48px;
+  padding: 64px 0 24px;
   border-top: 1px solid #e5e7eb;
-  color: #6b7280;
+  color: #4b5563;
 }
 
-.footer p {
+.footer-main {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(130px, 0.6fr));
+  gap: 48px;
+  padding-bottom: 56px;
+}
+
+.footer-intro {
+  max-width: 330px;
+}
+
+.footer-brand {
+  display: inline-block;
+  color: #111827;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  text-decoration: none;
+}
+
+.footer-brand::after {
+  content: ".";
+  color: #c49a45;
+}
+
+.footer-intro p {
+  margin: 18px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.footer-column h2 {
+  margin: 4px 0 22px;
+  color: #111827;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.footer-column ul {
+  display: grid;
+  gap: 13px;
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-column a {
+  width: fit-content;
+  color: #4b5563;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.footer-column a:hover {
+  color: #111827;
+}
+
+.footer-column a:focus-visible,
+.footer-brand:focus-visible,
+.footer-socials button:focus-visible {
+  outline: 3px solid #c49a45;
+  outline-offset: 4px;
+}
+
+.footer-contact {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  font-style: normal;
+}
+
+.footer-contact h2 {
+  margin-bottom: 8px;
+}
+
+.footer-contact a {
+  line-height: 1.45;
+}
+
+.footer-contact a span {
+  display: block;
+  color: #7a8390;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.footer-socials > div {
+  display: flex;
+  gap: 9px;
+}
+
+.footer-socials button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: #374151;
+  background: transparent;
+  border: 1px solid #d7dce2;
+  border-radius: 50%;
+}
+
+.footer-socials button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.footer-socials svg {
+  width: 16px;
+  height: 16px;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: #7a8390;
+  font-size: 0.78rem;
+}
+
+.footer-bottom span {
+  color: #374151;
+  font-weight: 700;
+}
+
+@media (max-width: 850px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer {
+    padding-top: 48px;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-bottom: 40px;
+  }
+
+  .footer-intro {
+    max-width: 290px;
+  }
+
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 }
