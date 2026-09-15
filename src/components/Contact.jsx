@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa6";
 import "./Contact.css";
 
-function Contact() {
+function Contact({ copy }) {
   return (
     <section
       className="contact-page"
@@ -15,14 +15,12 @@ function Contact() {
       aria-labelledby="contact-heading"
     >
       <header className="contact-intro">
-        <p className="contact-label">Contact Matrabhumi</p>
-        <h1 id="contact-heading">Let&apos;s talk about your project.</h1>
-        <p>
-          Speak directly with the people responsible for building your home.
-        </p>
+        <p className="contact-label">{copy.label}</p>
+        <h1 id="contact-heading">{copy.heading}</h1>
+        <p>{copy.intro}</p>
       </header>
 
-      <div className="contact-options" aria-label="Contact options">
+      <div className="contact-options" aria-label={copy.options}>
         <a
           className="contact-option"
           href="tel:+917470892677"
@@ -30,7 +28,7 @@ function Contact() {
         >
           <FaPhone aria-hidden="true" />
           <span>
-            <small>Dhruv Lobaniya</small>
+            <small>{copy.dhruv}</small>
             +91 74708 92677
           </span>
         </a>
@@ -44,7 +42,7 @@ function Contact() {
         >
           <FaWhatsapp aria-hidden="true" />
           <span>
-            <small>WhatsApp</small>
+            <small>{copy.whatsapp}</small>
             +91 77708 19697
           </span>
         </a>
@@ -56,30 +54,31 @@ function Contact() {
         >
           <FaPhone aria-hidden="true" />
           <span>
-            <small>Mr. Kailash Lobaniya</small>
+            <small>{copy.kailash}</small>
             +91 75420 28741
           </span>
         </a>
       </div>
 
       <div className="contact-socials">
-        <p>Follow Matrabhumi</p>
-        <div className="social-buttons" aria-label="Social media links">
+        <p>{copy.follow}</p>
+        <div className="social-buttons" aria-label={copy.socials}>
           <button
             type="button"
             disabled
-            aria-label="Instagram link coming soon"
+            aria-label={`Instagram ${copy.comingSoon}`}
           >
             <FaInstagram aria-hidden="true" />
-            <span>Instagram</span>
           </button>
-          <button type="button" disabled aria-label="X link coming soon">
+          <button type="button" disabled aria-label={`X ${copy.comingSoon}`}>
             <FaXTwitter aria-hidden="true" />
-            <span>X</span>
           </button>
-          <button type="button" disabled aria-label="Facebook link coming soon">
+          <button
+            type="button"
+            disabled
+            aria-label={`Facebook ${copy.comingSoon}`}
+          >
             <FaFacebookF aria-hidden="true" />
-            <span>Facebook</span>
           </button>
         </div>
       </div>

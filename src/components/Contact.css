@@ -193,3 +193,36 @@
     border: 0;
   }
 }
+
+:root[data-theme="dark"] .contact-page {
+  color: #eef1f5;
+}
+
+:root[data-theme="dark"] .contact-intro > p:last-child,
+:root[data-theme="dark"] .contact-socials > p {
+  color: #aeb7c4;
+}
+
+:root[data-theme="dark"] .contact-option {
+  color: #d6dce4;
+  border-color: #303b4b;
+}
+
+:root[data-theme="dark"] .contact-option:hover {
+  color: #ffffff;
+  border-color: #6f7b8d;
+}
+
+:root[data-theme="dark"] .contact-option small {
+  color: #98a3b2;
+}
+
+:root[data-theme="dark"] .contact-socials {
+  border-color: #303b4b;
+}
+
+:root[data-theme="dark"] .social-buttons button {
+  color: #d2d8e0;
+  background: #131b27;
+  border-color: #303b4b;
+}

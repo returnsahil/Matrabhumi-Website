@@ -4,12 +4,104 @@
   --home-line: #e3e5e8;
   --home-gold: #c49a45;
   --home-paper: #f8f7f3;
+  --home-surface-dark: #111827;
+  position: relative;
   color: var(--home-ink);
   overflow: clip;
 }
 
+.home-blueprint {
+  position: absolute;
+  top: -54px;
+  left: 0;
+  z-index: 3;
+  width: 100%;
+  height: 1040px;
+  overflow: visible;
+  fill: none;
+  pointer-events: none;
+}
+
+.home-blueprint--middle {
+  top: clamp(1250px, 105vw, 1680px);
+  z-index: 0;
+  height: 2300px;
+  opacity: 0.72;
+}
+
+.home-blueprint--middle .blueprint-flow {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+.blueprint-flow--middle-a,
+.blueprint-flow--middle-c {
+  stroke: rgba(196, 154, 69, 0.3);
+}
+
+.blueprint-flow--middle-b {
+  stroke: rgba(17, 24, 39, 0.2);
+}
+
+.blueprint-dimensions--middle {
+  opacity: 0.56;
+  animation: none;
+}
+
+.home-page > section {
+  position: relative;
+  z-index: 1;
+}
+
+.blueprint-flow {
+  stroke: rgba(196, 154, 69, 0.42);
+  stroke-width: 1.35;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: blueprint-draw 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.blueprint-flow--side {
+  stroke: rgba(17, 24, 39, 0.3);
+  animation-delay: 0.3s;
+}
+
+.blueprint-flow--main {
+  animation-delay: 0.55s;
+}
+
+.blueprint-dimensions {
+  stroke: rgba(17, 24, 39, 0.28);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  animation: blueprint-fade 0.8s ease 1.35s forwards;
+}
+
+.blueprint-points {
+  fill: var(--home-gold);
+  stroke: #ffffff;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  animation: blueprint-fade 0.65s ease 1.7s forwards;
+}
+
+@keyframes blueprint-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes blueprint-fade {
+  to {
+    opacity: 1;
+  }
+}
+
 .home-page .hero {
-  min-height: clamp(560px, 72vh, 720px);
+  min-height: clamp(600px, 76vh, 760px);
   margin-top: 18px;
   padding: clamp(48px, 7vw, 88px);
   border: 1px solid rgba(17, 24, 39, 0.08);
@@ -29,6 +121,56 @@
 
 .home-page .hero-content {
   max-width: 680px;
+}
+
+.home-page .hero-content > * {
+  opacity: 0;
+  transform: translateY(22px);
+  animation: hero-content-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.home-page .hero-content > :nth-child(1) {
+  animation-delay: 0.12s;
+}
+
+.home-page .hero-content > :nth-child(2) {
+  animation-delay: 0.24s;
+}
+
+.home-page .hero-content > :nth-child(3) {
+  animation-delay: 0.38s;
+}
+
+.home-page .hero-content > :nth-child(4) {
+  animation-delay: 0.5s;
+}
+
+.home-page .hero-image {
+  animation: hero-image-in 1.25s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes hero-content-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-image-in {
+  from {
+    opacity: 0;
+    transform: scale(1.045);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.home-page .hero:has(.hero-content:hover) .hero-image {
+  filter: saturate(0.9) brightness(0.95) blur(1px);
+  transform: scale(1.018);
 }
 
 .home-page .hero-label,
@@ -78,13 +220,67 @@
 
 .home-projects,
 .home-process {
+  position: relative;
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
   padding: clamp(88px, 10vw, 140px) 0;
 }
 
+.home-projects::before,
+.home-about::before,
+.home-process::before {
+  position: absolute;
+  top: clamp(24px, 5vw, 72px);
+  right: -0.04em;
+  z-index: -1;
+  color: rgba(17, 24, 39, 0.045);
+  font-size: clamp(7rem, 17vw, 15rem);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.09em;
+  pointer-events: none;
+}
+
+.home-projects::before {
+  content: "01";
+}
+
+.home-about::before {
+  content: "02";
+  top: 28px;
+  right: 28px;
+  color: rgba(255, 255, 255, 0.055);
+}
+
+.home-process::before {
+  content: "03";
+}
+
+.home-projects > *,
+.home-about > *,
+.home-process > * {
+  position: relative;
+  z-index: 1;
+}
+
 .home-page .section-heading {
   max-width: 760px;
+}
+
+.home-projects > .section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  column-gap: clamp(40px, 8vw, 120px);
+  max-width: none;
+}
+
+.home-projects > .section-heading .section-label {
+  grid-column: 1 / -1;
+}
+
+.home-projects > .section-heading > p:not(.section-label) {
+  align-self: end;
+  margin-top: 0;
 }
 
 .home-page .section-label {
@@ -114,14 +310,70 @@
   margin-top: 56px;
 }
 
+.featured-project-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #111827;
+  border-radius: 18px;
+  text-decoration: none;
+}
+
+.featured-project-card::after {
+  content: "";
+  position: absolute;
+  inset: 42% 0 0;
+  z-index: 0;
+  background: linear-gradient(180deg, transparent, rgba(7, 13, 22, 0.82));
+  pointer-events: none;
+}
+
 .featured-project-card--wide {
   grid-column: 1 / -1;
 }
 
 .featured-project-image {
+  position: relative;
   overflow: hidden;
   background: #e9e6df;
-  border-radius: 18px;
+}
+
+.project-cursor {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .featured-project-card {
+    cursor: none;
+  }
+
+  .project-cursor {
+    position: fixed;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    color: #ffffff;
+    background: rgba(17, 24, 39, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.56);
+    border-radius: 50%;
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.2);
+    font-size: 0.74rem;
+    font-weight: 800;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+    transition:
+      opacity 0.18s ease,
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .project-cursor.is-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 .featured-project-card--wide .featured-project-image {
@@ -140,13 +392,26 @@
   object-fit: cover;
   transition: transform 0.55s ease;
 }
-
 .featured-project-copy {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px 2px 0;
+  padding: clamp(20px, 3vw, 34px);
+  color: #ffffff;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.featured-project-copy::after {
+  content: "→";
+  color: #ffffff;
+  font-size: 1.55rem;
+  font-weight: 400;
 }
 
 .featured-project-copy p,
@@ -163,14 +428,18 @@
 }
 
 .featured-project-copy h3 {
-  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  color: #ffffff;
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
   letter-spacing: -0.02em;
-  text-align: right;
 }
 
 @media (hover: hover) {
   .featured-project-card:hover .featured-project-image img {
-    transform: scale(1.035);
+    transform: scale(1.045);
+  }
+
+  .featured-project-card:hover .featured-project-copy {
+    transform: translateY(-5px);
   }
 }
 
@@ -195,6 +464,7 @@
 }
 
 .home-about {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: clamp(36px, 6vw, 82px);
@@ -202,8 +472,9 @@
   margin: 0 auto;
   padding: clamp(32px, 5vw, 64px);
   color: #ffffff;
-  background: var(--home-ink);
+  background: var(--home-surface-dark);
   border-radius: 24px;
+  box-shadow: 0 26px 70px rgba(17, 24, 39, 0.13);
 }
 
 .home-about-visual {
@@ -217,6 +488,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .home-about:hover .home-about-visual img {
+    transform: scale(1.035);
+  }
 }
 
 .home-about-content {
@@ -241,18 +519,53 @@
 }
 
 .process-steps {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 0;
   margin-top: 56px;
+  border-top: 1px solid var(--home-line);
+}
+
+.process-steps::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #9a762f, var(--home-gold), #dfc889);
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .process-step {
-  min-height: 280px;
-  padding: 28px;
-  background: var(--home-paper);
-  border: 1px solid var(--home-line);
-  border-radius: 16px;
+  position: relative;
+  min-height: 250px;
+  padding: 32px clamp(22px, 3vw, 38px);
+  border-left: 1px solid var(--home-line);
+  transition:
+    background-color 0.3s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.process-step::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: calc(50% - 6px);
+  z-index: 3;
+  width: 12px;
+  height: 12px;
+  background: var(--home-gold);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(196, 154, 69, 0.28);
+}
+
+.process-step:first-child {
+  border-left: 0;
 }
 
 .process-step span {
@@ -263,7 +576,7 @@
 }
 
 .process-step h3 {
-  margin: 72px 0 14px;
+  margin: 66px 0 14px;
   font-size: 1.45rem;
 }
 
@@ -273,16 +586,127 @@
   line-height: 1.7;
 }
 
+@media (hover: hover) {
+  .process-step:hover {
+    background: rgba(196, 154, 69, 0.07);
+    transform: translateY(-7px);
+  }
+}
+
 .home-cta {
+  position: relative;
+  isolation: isolate;
   width: min(1120px, calc(100% - 32px));
-  margin: 0 auto clamp(72px, 9vw, 120px);
+  margin: 0 auto;
   padding: clamp(56px, 8vw, 96px) clamp(24px, 8vw, 96px);
+  overflow: hidden;
   color: #ffffff;
   text-align: center;
-  background:
-    radial-gradient(circle at 80% 15%, rgba(196, 154, 69, 0.2), transparent 35%),
-    var(--home-ink);
+  background: var(--home-surface-dark);
   border-radius: 24px;
+}
+
+.home-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(8, 14, 24, 0.96), rgba(8, 14, 24, 0.7)),
+    url("../assets/projects/modern-house-05.png") center 58% / cover;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-cta::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -8%;
+  z-index: -1;
+  width: 42%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196, 154, 69, 0.7));
+}
+
+@media (hover: hover) {
+  .home-cta:hover::before {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(38px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes process-line-x {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes process-line-y {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes image-curtain {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .home-projects > .section-heading,
+  .featured-project-card,
+  .home-about,
+  .home-process > .section-heading,
+  .process-step,
+  .home-cta {
+    animation: section-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 28%;
+  }
+
+  .home-blueprint--middle .blueprint-flow {
+    stroke-dashoffset: 1;
+    animation: blueprint-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 45%;
+  }
+
+  .featured-project-image img,
+  .home-about-visual img {
+    animation: image-curtain linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+
+  .process-steps::before {
+    animation: process-line-x linear both;
+    animation-timeline: view();
+    animation-range: entry 12% cover 42%;
+  }
 }
 
 .home-cta .section-label {
@@ -317,7 +741,42 @@
   }
 
   .process-steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+    padding-left: 26px;
+    border-top: 0;
+  }
+
+  .process-steps::before {
+    top: 0;
+    left: 5px;
+    width: 2px;
+    height: 100%;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  .process-step,
+  .process-step:nth-child(odd),
+  .process-step:nth-child(n + 3) {
+    min-height: auto;
+    padding: 32px 24px;
+    border-top: 0;
+    border-left: 0;
+  }
+
+  .process-step::before {
+    top: 36px;
+    left: -26px;
+  }
+
+  .process-step h3 {
+    margin-top: 38px;
+  }
+
+  @supports (animation-timeline: view()) {
+    .process-steps::before {
+      animation-name: process-line-y;
+    }
   }
 }
 
@@ -327,6 +786,25 @@
     margin-top: 12px;
     padding: 52px 24px;
     border-radius: 18px;
+  }
+
+  .home-blueprint:not(.home-blueprint--middle) {
+    top: 0;
+    height: 820px;
+    opacity: 0.52;
+  }
+
+  .home-blueprint--middle {
+    top: 1450px;
+    height: 3600px;
+    opacity: 0.46;
+  }
+
+  .blueprint-flow--top,
+  .blueprint-flow--side,
+  .blueprint-dimensions,
+  .blueprint-points circle:not(:nth-child(2)) {
+    display: none;
   }
 
   .home-page .hero::before {
@@ -362,6 +840,14 @@
     padding: 84px 0;
   }
 
+  .home-projects > .section-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .home-projects > .section-heading > p:not(.section-label) {
+    margin-top: 22px;
+  }
+
   .home-page .section-heading h2,
   .home-page .home-cta h2 {
     font-size: clamp(2.25rem, 11vw, 3.4rem);
@@ -387,6 +873,13 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
+    padding-right: 58px;
+  }
+
+  .featured-project-copy::after {
+    position: absolute;
+    right: 22px;
+    bottom: 22px;
   }
 
   .featured-project-copy h3 {
@@ -403,12 +896,13 @@
   }
 
   .process-steps {
-    grid-template-columns: 1fr;
     margin-top: 40px;
   }
 
-  .process-step {
-    min-height: auto;
+  .process-step,
+  .process-step:nth-child(odd) {
+    border-top: 0;
+    border-left: 0;
   }
 
   .process-step h3 {
@@ -418,6 +912,10 @@
   .home-cta {
     border-radius: 18px;
   }
+
+  .home-cta::after {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -425,6 +923,66 @@
   .home-page *::before,
   .home-page *::after {
     scroll-behavior: auto !important;
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+:root[data-theme="dark"] .home-page {
+  --home-ink: #eef1f5;
+  --home-muted: #aeb7c4;
+  --home-line: #2c3746;
+  --home-paper: #141c27;
+  --home-surface-dark: #111927;
+}
+
+:root[data-theme="dark"] .home-page .hero {
+  border-color: #273244;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme="dark"] .home-page .hero::before {
+  background: linear-gradient(
+    90deg,
+    rgba(10, 15, 23, 0.97) 0%,
+    rgba(10, 15, 23, 0.86) 40%,
+    rgba(10, 15, 23, 0.25) 76%,
+    rgba(10, 15, 23, 0.08) 100%
+  );
+}
+
+:root[data-theme="dark"] .home-page .hero-description {
+  color: #bbc3ce;
+}
+
+:root[data-theme="dark"] .blueprint-flow--side,
+:root[data-theme="dark"] .blueprint-flow--middle-b,
+:root[data-theme="dark"] .blueprint-dimensions {
+  stroke: rgba(225, 230, 237, 0.25);
+}
+
+:root[data-theme="dark"] .blueprint-points {
+  stroke: #0b1018;
+}
+
+:root[data-theme="dark"] .home-projects::before,
+:root[data-theme="dark"] .home-process::before {
+  color: rgba(255, 255, 255, 0.045);
+}
+
+:root[data-theme="dark"] .process-step::before {
+  border-color: #0b1018;
+}
+
+@media (max-width: 600px) {
+  :root[data-theme="dark"] .home-page .hero::before {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 15, 23, 0.98) 0%,
+      rgba(10, 15, 23, 0.9) 58%,
+      rgba(10, 15, 23, 0.28) 100%
+    );
   }
 }

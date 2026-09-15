@@ -1,65 +1,53 @@
 import { Link } from "react-router";
 import { FaFacebookF, FaInstagram, FaXTwitter } from "react-icons/fa6";
 
-function Footer() {
+function Footer({ copy, navCopy, brand }) {
   return (
     <footer className="footer">
       <div className="footer-main">
         <div className="footer-intro">
           <Link className="footer-brand" to="/" aria-label="Matrabhumi home">
-            Matrabhumi
+            {brand}
           </Link>
-          <p>Thoughtful homes built with honesty, care, and purpose.</p>
+          <p>{copy.description}</p>
         </div>
 
         <nav className="footer-column" aria-label="Footer navigation">
-          <h2>Explore</h2>
+          <h2>{copy.explore}</h2>
           <ul>
             <li>
-              <Link to="/">Home</Link>
+              <Link to="/">{navCopy.home}</Link>
             </li>
             <li>
-              <Link to="/about">About</Link>
+              <Link to="/about">{navCopy.about}</Link>
             </li>
             <li>
-              <Link to="/projects">Projects</Link>
+              <Link to="/projects">{navCopy.projects}</Link>
             </li>
             <li>
-              <Link to="/contact">Contact</Link>
+              <Link to="/contact">{navCopy.contact}</Link>
             </li>
           </ul>
         </nav>
 
-        <address className="footer-column footer-contact">
-          <h2>Contact</h2>
-          <a href="tel:+917470892677">
-            <span>Dhruv Lobaniya</span>
-            +91 74708 92677
-          </a>
-          <a
-            href="https://wa.me/917770819697"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span>Business WhatsApp</span>
-            +91 77708 19697
-          </a>
-          <a href="tel:+917542028741">
-            <span>Mr. Kailash Lobaniya</span>
-            +91 75420 28741
-          </a>
-        </address>
-
         <div className="footer-column footer-socials">
-          <h2>Follow</h2>
+          <h2>{copy.follow}</h2>
           <div aria-label="Social media links">
-            <button type="button" disabled aria-label="Instagram link coming soon">
+            <button
+              type="button"
+              disabled
+              aria-label="Instagram link coming soon"
+            >
               <FaInstagram aria-hidden="true" />
             </button>
             <button type="button" disabled aria-label="X link coming soon">
               <FaXTwitter aria-hidden="true" />
             </button>
-            <button type="button" disabled aria-label="Facebook link coming soon">
+            <button
+              type="button"
+              disabled
+              aria-label="Facebook link coming soon"
+            >
               <FaFacebookF aria-hidden="true" />
             </button>
           </div>
@@ -67,13 +55,13 @@ function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>© 2026 Matrabhumi. All rights reserved.</p>
+        <p>{copy.rights}</p>
         <p>
-          Designed and developed by <span>Sahil Mandloi</span>.
+          {copy.credit} <span>Sahil Mandloi</span>.
         </p>
       </div>
     </footer>
-  )
+  );
 }
 
-export default Footer
+export default Footer;

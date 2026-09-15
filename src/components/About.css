@@ -70,7 +70,6 @@
 
 .about-story {
   padding: 112px 0;
-  border-bottom: 1px solid #dfe3e8;
 }
 
 .about-story h2,
@@ -86,7 +85,6 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 72px;
-  border-top: 1px solid #dfe3e8;
 }
 
 .about-chapter {
@@ -178,5 +176,27 @@
 
   .about-english-heading {
     position: static;
+  }
+}
+
+:root[data-theme="dark"] .about-page {
+  color: #eef1f5;
+}
+
+:root[data-theme="dark"] .about-intro-copy,
+:root[data-theme="dark"] .about-chapter p {
+  color: #aeb7c4;
+}
+
+:root[data-theme="dark"] .about-story,
+:root[data-theme="dark"] .about-chapters,
+:root[data-theme="dark"] .about-chapter + .about-chapter {
+  border-color: #2b3544;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="dark"] .about-chapter,
+  :root[data-theme="dark"] .about-chapter + .about-chapter {
+    border-color: #2b3544;
   }
 }

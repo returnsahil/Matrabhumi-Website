@@ -1,46 +1,77 @@
 import { NavLink } from "react-router";
 import { useState } from "react";
-function Navbar() {
+import { FiMoon, FiSun } from "react-icons/fi";
+
+function Navbar({
+  copy,
+  brand,
+  isDark,
+  language,
+  onThemeToggle,
+  onLanguageToggle,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header className="navbar">
-      <h1 className="brand">Matrabhumi</h1>
-      <button
-        className="menu-toggle"
-        type="button"
-        aria-label="Toggle navigation menu"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        {menuOpen ? "✕" : "☰ और जानें"}
-      </button>
+      <h1 className="brand">{brand}</h1>
       <nav
         className={menuOpen ? "nav-menu open" : "nav-menu"}
-        aria-label="Main navigation"
+        aria-label={copy.navigation}
       >
         <ul className="nav-links">
           <li>
             <NavLink to="/" end onClick={() => setMenuOpen(false)}>
-              Home
+              {copy.home}
             </NavLink>
           </li>
           <li>
             <NavLink to="/about" onClick={() => setMenuOpen(false)}>
-              About
+              {copy.about}
             </NavLink>
           </li>
           <li>
             <NavLink to="/projects" onClick={() => setMenuOpen(false)}>
-              Projects
+              {copy.projects}
             </NavLink>
           </li>
           <li>
             <NavLink to="/contact" onClick={() => setMenuOpen(false)}>
-              Contact
+              {copy.contact}
             </NavLink>
           </li>
         </ul>
       </nav>
+      <div className="nav-actions">
+        <button
+          className="utility-toggle"
+          type="button"
+          aria-label={isDark ? copy.lightMode : copy.darkMode}
+          title={isDark ? copy.lightMode : copy.darkMode}
+          aria-pressed={isDark}
+          onClick={onThemeToggle}
+        >
+          {isDark ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
+        </button>
+        <button
+          className="utility-toggle language-toggle"
+          type="button"
+          aria-label={copy.languageLabel}
+          title={copy.languageLabel}
+          aria-pressed={language === "hi"}
+          onClick={onLanguageToggle}
+        >
+          {copy.language}
+        </button>
+      </div>
+      <button
+        className="menu-toggle"
+        type="button"
+        aria-label={menuOpen ? copy.closeMenu : copy.openMenu}
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
+      </button>
     </header>
   );
 }
