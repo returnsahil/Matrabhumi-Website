@@ -328,6 +328,10 @@
   pointer-events: none;
 }
 
+.featured-project-card.is-empty::after {
+  display: none;
+}
+
 .featured-project-card--wide {
   grid-column: 1 / -1;
 }
@@ -336,6 +340,24 @@
   position: relative;
   overflow: hidden;
   background: #e9e6df;
+}
+
+.featured-project-empty {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  color: #a8a59e;
+  background: linear-gradient(145deg, #eeece6, #e4e1da);
+  place-items: center;
+}
+
+.featured-project-empty svg {
+  width: clamp(38px, 5vw, 58px);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.15;
 }
 
 .project-cursor {

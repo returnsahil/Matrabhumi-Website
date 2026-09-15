@@ -1,20 +1,65 @@
-import house1 from "../assets/projects/modern-house-01.png";
-import house2 from "../assets/projects/modern-house-02.png";
-import house3 from "../assets/projects/modern-house-03.png";
-import house4 from "../assets/projects/modern-house-04.png";
-import house5 from "../assets/projects/modern-house-05.png";
+import { useEffect, useState } from "react";
 import { ProjectCard } from "./ProjectCard";
+import {
+  getProjectImageUrl,
+  getPublishedProjects,
+  orderProjectImages,
+} from "../services/projects.js";
 import "./Projects.css";
-// create a array of the projects that need to be accesed multiple times in the page this is one array that could be accesed multipletimes
-const projectImages = [house1, house2, house3, house4, house5];
 
-function Projects({ copy }) {
-  const projects = projectImages.map((image, index) => ({
-    id: index + 1,
-    title: copy.title,
-    description: copy.description,
-    label: copy.preview,
-    image,
+function Projects({ copy, language }) {
+  const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadProjects() {
+      const { projects: publishedProjects, error } =
+        await getPublishedProjects();
+
+      if (!isCurrent) return;
+
+      if (error) {
+        setLoadError(copy.loadError);
+      } else {
+        setProjects(publishedProjects);
+      }
+
+      setIsLoading(false);
+    }
+
+    loadProjects();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [copy.loadError]);
+
+  const visibleProjects = projects.map((project, index) => ({
+    ...project,
+    number: index + 1,
+    title:
+      language === "hi" ? project.title_hi || project.title_en : project.title_en,
+    description:
+      language === "hi"
+        ? project.description_hi || project.description_en
+        : project.description_en,
+    location:
+      language === "hi"
+        ? project.location_hi || project.location_en
+        : project.location_en,
+    statusLabel: copy.statuses[project.construction_status],
+    images: orderProjectImages(project.project_images)
+      .map((image) => ({
+        ...image,
+        url: getProjectImageUrl(image.storage_path),
+        alt:
+          language === "hi"
+            ? image.alt_text_hi || image.alt_text_en || project.title_en
+            : image.alt_text_en || project.title_en,
+      })),
   }));
 
   return (
@@ -24,8 +69,25 @@ function Projects({ copy }) {
         <h1>{copy.heading}</h1>
         <p className="projects-intro">{copy.intro}</p>
       </header>
+
+      {isLoading && (
+        <p className="projects-message" role="status">
+          {copy.loading}
+        </p>
+      )}
+
+      {loadError && (
+        <p className="projects-message projects-message--error" role="alert">
+          {loadError}
+        </p>
+      )}
+
+      {!isLoading && !loadError && visibleProjects.length === 0 && (
+        <p className="projects-message">{copy.empty}</p>
+      )}
+
       <div className="projects-grid">
-        {projects.map((project) => (
+        {visibleProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>

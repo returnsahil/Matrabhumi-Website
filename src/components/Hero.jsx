@@ -1,18 +1,65 @@
 import { Link } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import architectureHero from "../assets/architecture-hero.png";
-import house1 from "../assets/projects/modern-house-01.png";
-import house2 from "../assets/projects/modern-house-02.png";
-import house3 from "../assets/projects/modern-house-03.png";
 import house4 from "../assets/projects/modern-house-04.png";
+import {
+  getFeaturedProjects,
+  getProjectImageUrl,
+  orderProjectImages,
+} from "../services/projects.js";
 import "./Home.css";
 
-function Hero({ copy }) {
+function Hero({ copy, projectCopy, language }) {
   const [projectCursor, setProjectCursor] = useState({
     visible: false,
     x: 0,
     y: 0,
   });
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadFeaturedProjects() {
+      const { projects, error } = await getFeaturedProjects();
+
+      if (isCurrent && !error) {
+        setFeaturedProjects(projects);
+      }
+    }
+
+    loadFeaturedProjects();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const homepageProjects = featuredProjects.map((project) => {
+    const coverImage = orderProjectImages(project.project_images)[0];
+
+    return {
+      id: project.id,
+      title:
+        language === "hi"
+          ? project.title_hi || project.title_en
+          : project.title_en,
+      status: projectCopy.statuses[project.construction_status],
+      imageUrl: coverImage
+        ? getProjectImageUrl(coverImage.storage_path)
+        : null,
+      imageAlt: coverImage
+        ? language === "hi"
+          ? coverImage.alt_text_hi || coverImage.alt_text_en || project.title_en
+          : coverImage.alt_text_en || project.title_en
+        : "",
+    };
+  });
+
+  const homepageProjectSlots = Array.from(
+    { length: 3 },
+    (_, index) => homepageProjects[index] ?? null,
+  );
 
   function moveProjectCursor(event) {
     if (event.pointerType === "touch") return;
@@ -123,74 +170,53 @@ function Hero({ copy }) {
         </div>
 
         <div className="featured-projects-preview">
-          <Link
-            className="featured-project-card featured-project-card--wide"
-            to="/projects"
-            aria-label={copy.projectNames[0]}
-            onPointerEnter={moveProjectCursor}
-            onPointerMove={moveProjectCursor}
-            onPointerLeave={hideProjectCursor}
-          >
-            <div className="featured-project-image">
-              <img
-                src={house1}
-                alt={copy.projectAlts[0]}
-                width="1536"
-                height="1024"
-                loading="lazy"
-              />
-            </div>
-            <div className="featured-project-copy">
-              <p>{copy.conceptPreview}</p>
-              <h3>{copy.projectNames[0]}</h3>
-            </div>
-          </Link>
+          {homepageProjectSlots.map((project, index) => {
+            const cardClassName = `featured-project-card${
+              index === 0 ? " featured-project-card--wide" : ""
+            }${project ? "" : " is-empty"}`;
 
-          <Link
-            className="featured-project-card"
-            to="/projects"
-            aria-label={copy.projectNames[1]}
-            onPointerEnter={moveProjectCursor}
-            onPointerMove={moveProjectCursor}
-            onPointerLeave={hideProjectCursor}
-          >
-            <div className="featured-project-image">
-              <img
-                src={house2}
-                alt={copy.projectAlts[1]}
-                width="1536"
-                height="1024"
-                loading="lazy"
-              />
-            </div>
-            <div className="featured-project-copy">
-              <p>{copy.conceptPreview}</p>
-              <h3>{copy.projectNames[1]}</h3>
-            </div>
-          </Link>
+            const imageArea = (
+              <div className="featured-project-image">
+                {project?.imageUrl ? (
+                  <img src={project.imageUrl} alt={project.imageAlt} loading="lazy" />
+                ) : (
+                  <div className="featured-project-empty" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M4 5.5h16v13H4z" />
+                      <circle cx="9" cy="10" r="1.5" />
+                      <path d="m5.5 17 4.5-4 3 2.5 2.5-2 3 3.5" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            );
 
-          <Link
-            className="featured-project-card"
-            to="/projects"
-            aria-label={copy.projectNames[2]}
-            onPointerEnter={moveProjectCursor}
-            onPointerMove={moveProjectCursor}
-            onPointerLeave={hideProjectCursor}
-          >
-            <div className="featured-project-image">
-              <img
-                src={house3}
-                alt={copy.projectAlts[2]}
-                width="1536"
-                height="1024"
-                loading="lazy"
-              />
-            </div>
-            <div className="featured-project-copy">
-              <p>{copy.conceptPreview}</p>
-              <h3>{copy.projectNames[2]}</h3>
-            </div>
-          </Link>
+            if (!project) {
+              return (
+                <div className={cardClassName} key={`empty-project-${index}`}>
+                  {imageArea}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                className={cardClassName}
+                to="/projects"
+                aria-label={project.title}
+                key={project.id}
+                onPointerEnter={moveProjectCursor}
+                onPointerMove={moveProjectCursor}
+                onPointerLeave={hideProjectCursor}
+              >
+                {imageArea}
+                <div className="featured-project-copy">
+                  <p>{project.status}</p>
+                  <h3>{project.title}</h3>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
         <Link className="text-link" to="/projects">
