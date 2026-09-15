@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { FaFacebookF, FaInstagram, FaXTwitter } from "react-icons/fa6";
+import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 function Footer({ copy, navCopy, brand }) {
   return (
@@ -7,7 +7,14 @@ function Footer({ copy, navCopy, brand }) {
       <div className="footer-main">
         <div className="footer-intro">
           <Link className="footer-brand" to="/" aria-label="Matrabhumi home">
-            {brand}
+            <img
+              src="/brand/Matrabhumi-logo-web.png"
+              alt=""
+              width="30"
+              height="30"
+              aria-hidden="true"
+            />
+            <span>{brand}</span>
           </Link>
           <p>{copy.description}</p>
         </div>
@@ -33,23 +40,22 @@ function Footer({ copy, navCopy, brand }) {
         <div className="footer-column footer-socials">
           <h2>{copy.follow}</h2>
           <div aria-label="Social media links">
-            <button
-              type="button"
-              disabled
-              aria-label="Instagram link coming soon"
+            <a
+              href="https://www.instagram.com/matrabhumi_construction_indore/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open Matrabhumi Construction on Instagram"
             >
               <FaInstagram aria-hidden="true" />
-            </button>
-            <button type="button" disabled aria-label="X link coming soon">
-              <FaXTwitter aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              disabled
-              aria-label="Facebook link coming soon"
+            </a>
+            <a
+              href="https://x.com/matrabhumipoint"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open Matrabhumi on X"
             >
-              <FaFacebookF aria-hidden="true" />
-            </button>
+              <FaXTwitter aria-hidden="true" />
+            </a>
           </div>
         </div>
       </div>

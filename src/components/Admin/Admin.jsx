@@ -16,6 +16,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import imageCompression from "browser-image-compression";
 import { supabase } from "../../lib/supabase.js";
 import {
   createProject,
@@ -42,6 +43,36 @@ const emptyProjectForm = {
   construction_status: "under_construction",
   sort_order: "0",
 };
+
+const supportedProjectImageTypes = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/bmp",
+]);
+const maximumSourceImageSize = 30 * 1024 * 1024;
+const maximumUploadedImageSize = 10 * 1024 * 1024;
+
+function createOptimizedImageName(fileName) {
+  const baseName = fileName.replace(/\.[^/.]+$/, "").trim();
+  return `${baseName || "project-image"}.webp`;
+}
+
+async function optimizeProjectImage(file) {
+  const optimizedImage = await imageCompression(file, {
+    maxSizeMB: 3,
+    maxWidthOrHeight: 3000,
+    fileType: "image/webp",
+    initialQuality: 0.9,
+    preserveExif: false,
+    useWebWorker: true,
+  });
+
+  return new File([optimizedImage], createOptimizedImageName(file.name), {
+    type: "image/webp",
+    lastModified: file.lastModified,
+  });
+}
 
 function createSlug(value) {
   return value
@@ -201,9 +232,11 @@ function AdminPage() {
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [projectFormError, setProjectFormError] = useState("");
   const [projectSuccess, setProjectSuccess] = useState("");
-  const [uploadingProjectId, setUploadingProjectId] = useState(null);
+  const [imageUploadStatus, setImageUploadStatus] = useState(null);
   const [publishingProjectId, setPublishingProjectId] = useState(null);
   const [imageUploadError, setImageUploadError] = useState("");
+  const [imageUploadErrorProjectId, setImageUploadErrorProjectId] =
+    useState(null);
   const [projectPendingDeletion, setProjectPendingDeletion] = useState(null);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
   const [coverPickerProjectId, setCoverPickerProjectId] = useState(null);
@@ -419,22 +452,64 @@ function AdminPage() {
 
     if (files.length === 0) return;
 
-    const invalidFile = files.find(
-      (file) => !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024,
+    const unsupportedFile = files.find(
+      (file) => !supportedProjectImageTypes.has(file.type),
     );
 
-    if (invalidFile) {
+    if (unsupportedFile) {
+      setImageUploadErrorProjectId(project.id);
       setImageUploadError(
-        "Every selected file must be an image and no larger than 10 MB.",
+        "Use JPG, PNG, WebP, or BMP project images.",
       );
       return;
     }
 
-    setUploadingProjectId(project.id);
+    const oversizedSource = files.find(
+      (file) => file.size > maximumSourceImageSize,
+    );
+
+    if (oversizedSource) {
+      setImageUploadErrorProjectId(project.id);
+      setImageUploadError(
+        "Each original image must be no larger than 30 MB before optimization.",
+      );
+      return;
+    }
+
+    setImageUploadStatus({ projectId: project.id, stage: "optimizing" });
     setImageUploadError("");
+    setImageUploadErrorProjectId(null);
     setProjectSuccess("");
 
-    const { images, error } = await uploadProjectImages(project, files);
+    let optimizedFiles;
+
+    try {
+      optimizedFiles = [];
+
+      for (const file of files) {
+        const optimizedFile = await optimizeProjectImage(file);
+
+        if (optimizedFile.size > maximumUploadedImageSize) {
+          throw new Error("The optimized image is still too large.");
+        }
+
+        optimizedFiles.push(optimizedFile);
+      }
+    } catch {
+      setImageUploadErrorProjectId(project.id);
+      setImageUploadError(
+        "One image could not be optimized. Try exporting it as a JPG or PNG first.",
+      );
+      setImageUploadStatus(null);
+      return;
+    }
+
+    setImageUploadStatus({ projectId: project.id, stage: "uploading" });
+
+    const { images, error } = await uploadProjectImages(
+      project,
+      optimizedFiles,
+    );
 
     if (images.length > 0) {
       setProjects((current) =>
@@ -453,24 +528,27 @@ function AdminPage() {
     }
 
     if (error) {
+      setImageUploadErrorProjectId(project.id);
       setImageUploadError(
         images.length > 0
           ? "Some images uploaded, but one file failed. Please try that file again."
           : "The images could not be uploaded. Please try again.",
       );
     } else {
+      setImageUploadErrorProjectId(null);
       setProjectSuccess(
-        `${images.length} ${images.length === 1 ? "image" : "images"} uploaded successfully.`,
+        `${images.length} ${images.length === 1 ? "image" : "images"} optimized and uploaded successfully.`,
       );
     }
 
-    setUploadingProjectId(null);
+    setImageUploadStatus(null);
   }
 
   async function handlePublicationChange(project) {
     const shouldPublish = !project.is_published;
 
     if (shouldPublish && (project.project_images ?? []).length === 0) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError(
         "Add at least one image before publishing this project.",
       );
@@ -487,6 +565,7 @@ function AdminPage() {
     );
 
     if (error) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError("The publication status could not be changed.");
     } else {
       setProjects((current) =>
@@ -514,6 +593,7 @@ function AdminPage() {
     const { error, cleanupError } = await deleteProject(projectPendingDeletion);
 
     if (error) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError("The project could not be deleted. Please try again.");
       setIsDeletingProject(false);
       return;
@@ -526,6 +606,7 @@ function AdminPage() {
     setIsDeletingProject(false);
 
     if (cleanupError) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError(
         "The project was deleted, but some stored image files need manual cleanup.",
       );
@@ -552,6 +633,7 @@ function AdminPage() {
     );
 
     if (error) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError("The cover image could not be changed.");
     } else {
       setProjects((current) =>
@@ -599,6 +681,7 @@ function AdminPage() {
     );
 
     if (error) {
+      setImageUploadErrorProjectId(null);
       setImageUploadError("The image order could not be changed.");
       setProjects((current) =>
         current.map((currentProject) =>
@@ -629,7 +712,16 @@ function AdminPage() {
       <div className="admin-page">
         <section className="admin-panel admin-dashboard">
           <div className="admin-panel-header">
-            <p className="admin-brand">Matrabhumi</p>
+            <p className="admin-brand">
+              <img
+                src="/brand/Matrabhumi-logo-web.png"
+                alt=""
+                width="34"
+                height="34"
+                aria-hidden="true"
+              />
+              <span>Matrabhumi</span>
+            </p>
             <button
               className="admin-text-button"
               type="button"
@@ -682,7 +774,7 @@ function AdminPage() {
             </p>
           )}
 
-          {imageUploadError && (
+          {imageUploadError && !imageUploadErrorProjectId && (
             <p className="admin-error" role="alert">
               {imageUploadError}
             </p>
@@ -876,6 +968,10 @@ function AdminPage() {
                 const coverImage =
                   projectImages.find((image) => image.is_cover) ??
                   projectImages[0];
+                const currentImageUploadStage =
+                  imageUploadStatus?.projectId === project.id
+                    ? imageUploadStatus.stage
+                    : null;
 
                 return (
                   <div className="admin-project-entry" key={project.id}>
@@ -908,6 +1004,16 @@ function AdminPage() {
                       </div>
 
                       <div className="admin-project-actions">
+                        {imageUploadError &&
+                          imageUploadErrorProjectId === project.id && (
+                            <p
+                              className="admin-project-upload-error"
+                              role="alert"
+                            >
+                              {imageUploadError}
+                            </p>
+                          )}
+
                       <span
                         className={`admin-project-state${
                           project.is_published ? " is-published" : ""
@@ -917,14 +1023,16 @@ function AdminPage() {
                       </span>
 
                       <label className="admin-upload-button">
-                        {uploadingProjectId === project.id
-                          ? "Uploading…"
-                          : "Add images"}
+                        {currentImageUploadStage === "optimizing"
+                          ? "Optimizing…"
+                          : currentImageUploadStage === "uploading"
+                            ? "Uploading…"
+                            : "Add images"}
                         <input
                           type="file"
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp,image/bmp"
                           multiple
-                          disabled={uploadingProjectId === project.id}
+                          disabled={Boolean(currentImageUploadStage)}
                           onChange={(event) =>
                             handleImageUpload(project, event)
                           }
@@ -1051,7 +1159,16 @@ function AdminPage() {
         className="admin-panel admin-login"
         aria-labelledby="admin-heading"
       >
-        <p className="admin-brand">Matrabhumi</p>
+        <p className="admin-brand">
+          <img
+            src="/brand/Matrabhumi-logo-web.png"
+            alt=""
+            width="34"
+            height="34"
+            aria-hidden="true"
+          />
+          <span>Matrabhumi</span>
+        </p>
         <p className="admin-eyebrow">Lobo/admin</p>
         <h1 id="admin-heading">Welcome back</h1>
         <p className="admin-intro">Hello rajje! New Project?</p>

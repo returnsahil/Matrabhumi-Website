@@ -1,5 +1,4 @@
 import {
-  FaFacebookF,
   FaInstagram,
   FaPhone,
   FaWhatsapp,
@@ -63,23 +62,22 @@ function Contact({ copy }) {
       <div className="contact-socials">
         <p>{copy.follow}</p>
         <div className="social-buttons" aria-label={copy.socials}>
-          <button
-            type="button"
-            disabled
-            aria-label={`Instagram ${copy.comingSoon}`}
+          <a
+            href="https://www.instagram.com/matrabhumi_construction_indore/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open Matrabhumi Construction on Instagram"
           >
             <FaInstagram aria-hidden="true" />
-          </button>
-          <button type="button" disabled aria-label={`X ${copy.comingSoon}`}>
-            <FaXTwitter aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            disabled
-            aria-label={`Facebook ${copy.comingSoon}`}
+          </a>
+          <a
+            href="https://x.com/matrabhumipoint"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open Matrabhumi on X"
           >
-            <FaFacebookF aria-hidden="true" />
-          </button>
+            <FaXTwitter aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>

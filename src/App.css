@@ -5,6 +5,9 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   margin: 0;
   color: #ffffff;
   font-size: 26px;
@@ -12,7 +15,16 @@
   letter-spacing: -0.5px;
 }
 
-.brand::after {
+.brand img {
+  display: block;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.brand > span::after {
   content: ".";
   color: #c49a45;
 }
@@ -168,8 +180,15 @@
   .navbar .brand {
     flex: 0 1 auto;
     min-width: 0;
-    font-size: clamp(1.15rem, 5.8vw, 1.35rem);
+    gap: 6px;
+    font-size: clamp(1.05rem, 5.2vw, 1.3rem);
     white-space: nowrap;
+  }
+
+  .navbar .brand img {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
   }
 
   .menu-toggle {
@@ -420,7 +439,9 @@ main {
 
 .footer-brand {
   grid-area: brand;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: #111827;
   font-size: 1.2rem;
   font-weight: 800;
@@ -428,7 +449,15 @@ main {
   text-decoration: none;
 }
 
-.footer-brand::after {
+.footer-brand img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.footer-brand > span::after {
   content: ".";
   color: #c49a45;
 }
@@ -476,6 +505,7 @@ main {
 
 .footer-column a:focus-visible,
 .footer-brand:focus-visible,
+.footer-socials a:focus-visible,
 .footer-socials button:focus-visible {
   outline: 3px solid #c49a45;
   outline-offset: 4px;
@@ -511,6 +541,7 @@ main {
   display: none;
 }
 
+.footer-socials a,
 .footer-socials button {
   display: inline-flex;
   align-items: center;
@@ -522,6 +553,7 @@ main {
   background: transparent;
   border: 1px solid #d7dce2;
   border-radius: 50%;
+  text-decoration: none;
 }
 
 .footer-socials button:disabled {
@@ -631,10 +663,12 @@ main {
 }
 
 :root[data-theme="dark"] .footer-bottom,
+:root[data-theme="dark"] .footer-socials a,
 :root[data-theme="dark"] .footer-socials button {
   border-color: transparent;
 }
 
+:root[data-theme="dark"] .footer-socials a,
 :root[data-theme="dark"] .footer-socials button {
   color: #c7ced8;
 }

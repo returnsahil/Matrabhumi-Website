@@ -13,7 +13,16 @@ function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header className="navbar">
-      <h1 className="brand">{brand}</h1>
+      <h1 className="brand">
+        <img
+          src="/brand/Matrabhumi-logo-web.png"
+          alt=""
+          width="34"
+          height="34"
+          aria-hidden="true"
+        />
+        <span>{brand}</span>
+      </h1>
       <nav
         className={menuOpen ? "nav-menu open" : "nav-menu"}
         aria-label={copy.navigation}
