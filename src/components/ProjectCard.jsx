@@ -4,9 +4,23 @@ import { createPortal } from "react-dom";
 export function ProjectCard({ project }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [loadedLightboxImage, setLoadedLightboxImage] = useState("");
+  const cardRef = useRef(null);
   const openButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
   const touchStartX = useRef(null);
+  const preloadedImages = useRef(new Set());
+
+  const preloadProjectImages = useCallback(() => {
+    project.images.forEach((projectImage) => {
+      if (preloadedImages.current.has(projectImage.url)) return;
+
+      preloadedImages.current.add(projectImage.url);
+      const image = new Image();
+      image.src = projectImage.url;
+      image.decode?.().catch(() => undefined);
+    });
+  }, [project.images]);
 
   const shiftImage = useCallback(
     (direction) => {
@@ -20,7 +34,11 @@ export function ProjectCard({ project }) {
   );
 
   function openGallery() {
-    setActiveImageIndex(0);
+    preloadProjectImages();
+    const coverIndex = project.images.findIndex(
+      (image) => image.id === project.coverImageId,
+    );
+    setActiveImageIndex(coverIndex >= 0 ? coverIndex : 0);
     setIsGalleryOpen(true);
   }
 
@@ -49,6 +67,27 @@ export function ProjectCard({ project }) {
   }
 
   useEffect(() => {
+    const card = cardRef.current;
+
+    if (!card || !("IntersectionObserver" in window)) {
+      preloadProjectImages();
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        preloadProjectImages();
+        observer.disconnect();
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [preloadProjectImages]);
+
+  useEffect(() => {
     if (!isGalleryOpen) return undefined;
 
     function handleKeyDown(event) {
@@ -71,7 +110,11 @@ export function ProjectCard({ project }) {
 
   if (project.images.length === 0) return null;
 
-  const coverImage = project.images[0];
+  const coverImage =
+    project.images.find((image) => image.id === project.coverImageId) ??
+    project.images[0];
+  const activeImage = project.images[activeImageIndex];
+  const activeImageIsLoaded = loadedLightboxImage === activeImage.url;
 
   const gallery = isGalleryOpen
     ? createPortal(
@@ -108,14 +151,19 @@ export function ProjectCard({ project }) {
           </div>
 
           <div
-            className="project-lightbox-stage"
+            className={`project-lightbox-stage${
+              activeImageIsLoaded ? "" : " is-loading"
+            }`}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             <img
-              src={project.images[activeImageIndex].url}
-              alt={project.images[activeImageIndex].alt}
+              key={activeImage.url}
+              src={activeImage.url}
+              alt={activeImage.alt}
+              decoding="async"
               draggable="false"
+              onLoad={() => setLoadedLightboxImage(activeImage.url)}
             />
 
             {project.images.length > 1 && (
@@ -152,7 +200,12 @@ export function ProjectCard({ project }) {
 
   return (
     <>
-      <div className="project-card">
+      <div
+        className="project-card"
+        ref={cardRef}
+        onPointerEnter={preloadProjectImages}
+        onFocusCapture={preloadProjectImages}
+      >
         <button
           className="project-card-cover"
           ref={openButtonRef}

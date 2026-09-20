@@ -20,6 +20,7 @@ import imageCompression from "browser-image-compression";
 import { supabase } from "../../lib/supabase.js";
 import {
   createProject,
+  deleteProjectImage,
   deleteProject,
   getAdminProjects,
   getProjectImageUrl,
@@ -91,7 +92,9 @@ function SortableProjectImage({
   project,
   isChangingCover,
   isReordering,
+  isDeletingImage,
   onCoverChange,
+  onDeleteImage,
 }) {
   const {
     attributes,
@@ -135,24 +138,35 @@ function SortableProjectImage({
 
       <div className="admin-image-tile-footer">
         <span>{String(index + 1).padStart(2, "0")}</span>
-        <button
-          className="admin-image-drag-handle"
-          ref={setActivatorNodeRef}
-          type="button"
-          disabled={isReordering}
-          aria-label={`Drag image ${index + 1} to change its position`}
-          {...attributes}
-          {...listeners}
-        >
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <circle cx="6" cy="5" r="1" />
-            <circle cx="14" cy="5" r="1" />
-            <circle cx="6" cy="10" r="1" />
-            <circle cx="14" cy="10" r="1" />
-            <circle cx="6" cy="15" r="1" />
-            <circle cx="14" cy="15" r="1" />
-          </svg>
-        </button>
+        <div className="admin-image-tile-actions">
+          <button
+            className="admin-image-delete-button"
+            type="button"
+            disabled={isDeletingImage || isReordering}
+            onClick={() => onDeleteImage(project, image)}
+            aria-label={`Delete image ${index + 1} from ${project.title_en}`}
+          >
+            Delete
+          </button>
+          <button
+            className="admin-image-drag-handle"
+            ref={setActivatorNodeRef}
+            type="button"
+            disabled={isDeletingImage || isReordering}
+            aria-label={`Drag image ${index + 1} to change its position`}
+            {...attributes}
+            {...listeners}
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="6" cy="5" r="1" />
+              <circle cx="14" cy="5" r="1" />
+              <circle cx="6" cy="10" r="1" />
+              <circle cx="14" cy="10" r="1" />
+              <circle cx="6" cy="15" r="1" />
+              <circle cx="14" cy="15" r="1" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -163,7 +177,10 @@ function SortableProjectImages({
   project,
   isChangingCover,
   isReordering,
+  isUploading,
+  isDeletingImage,
   onCoverChange,
+  onDeleteImage,
   onReorder,
 }) {
   const sensors = useSensors(
@@ -205,8 +222,10 @@ function SortableProjectImages({
               index={index}
               project={project}
               isChangingCover={isChangingCover}
-              isReordering={isReordering}
+              isReordering={isReordering || isUploading}
+              isDeletingImage={isDeletingImage}
               onCoverChange={onCoverChange}
+              onDeleteImage={onDeleteImage}
               key={image.id}
             />
           ))}
@@ -240,6 +259,8 @@ function AdminPage() {
     useState(null);
   const [projectPendingDeletion, setProjectPendingDeletion] = useState(null);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
+  const [imagePendingDeletion, setImagePendingDeletion] = useState(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
   const [coverPickerProjectId, setCoverPickerProjectId] = useState(null);
   const [changingCoverProjectId, setChangingCoverProjectId] = useState(null);
   const [reorderingProjectId, setReorderingProjectId] = useState(null);
@@ -658,6 +679,95 @@ function AdminPage() {
     setChangingCoverProjectId(null);
   }
 
+  function requestImageDeletion(project, image) {
+    if (project.is_published && (project.project_images ?? []).length === 1) {
+      setImageUploadErrorProjectId(project.id);
+      setImageUploadError(
+        "A published project must keep one image. Add its replacement or unpublish the project first.",
+      );
+      return;
+    }
+
+    setImageUploadError("");
+    setImageUploadErrorProjectId(null);
+    setProjectSuccess("");
+    setImagePendingDeletion({ project, image });
+  }
+
+  async function handleDeleteImage() {
+    if (!imagePendingDeletion) return;
+
+    const { project, image } = imagePendingDeletion;
+    const remainingImages = (project.project_images ?? []).filter(
+      (projectImage) => projectImage.id !== image.id,
+    );
+    const replacementCover = image.is_cover ? remainingImages[0] : null;
+
+    setIsDeletingImage(true);
+    setImageUploadError("");
+    setImageUploadErrorProjectId(null);
+    setProjectSuccess("");
+
+    if (replacementCover) {
+      const { error: coverError } = await setProjectCover(
+        project.id,
+        replacementCover.id,
+        image.id,
+      );
+
+      if (coverError) {
+        setImageUploadErrorProjectId(project.id);
+        setImageUploadError(
+          "The image could not be deleted because its replacement cover could not be set.",
+        );
+        setIsDeletingImage(false);
+        return;
+      }
+    }
+
+    const { error, cleanupError } = await deleteProjectImage(
+      project.id,
+      image,
+    );
+
+    if (error) {
+      if (replacementCover) {
+        await setProjectCover(project.id, image.id, replacementCover.id);
+      }
+
+      setImageUploadErrorProjectId(project.id);
+      setImageUploadError("The image could not be deleted. Please try again.");
+      setIsDeletingImage(false);
+      return;
+    }
+
+    const updatedImages = remainingImages.map((projectImage) => ({
+      ...projectImage,
+      is_cover: replacementCover
+        ? projectImage.id === replacementCover.id
+        : projectImage.is_cover,
+    }));
+
+    setProjects((current) =>
+      current.map((currentProject) =>
+        currentProject.id === project.id
+          ? { ...currentProject, project_images: updatedImages }
+          : currentProject,
+      ),
+    );
+    setImagePendingDeletion(null);
+    setIsDeletingImage(false);
+
+    if (cleanupError) {
+      setImageUploadErrorProjectId(project.id);
+      setImageUploadError(
+        "The image was removed from the project, but its stored file needs manual cleanup.",
+      );
+    } else {
+      setProjectSuccess("Project image deleted successfully.");
+    }
+  }
+
   async function handleImageReorder(project, orderedImages) {
     const previousImages = project.project_images ?? [];
     const imagesWithUpdatedOrder = orderedImages.map((image, index) => ({
@@ -678,7 +788,7 @@ function AdminPage() {
 
     const { error } = await reorderProjectImages(
       project.id,
-      imagesWithUpdatedOrder.map((image) => image.id),
+      imagesWithUpdatedOrder,
     );
 
     if (error) {
@@ -1042,7 +1152,7 @@ function AdminPage() {
                         />
                       </label>
 
-                      {projectImages.length > 1 && (
+                      {projectImages.length > 0 && (
                         <button
                           className="admin-cover-button"
                           type="button"
@@ -1054,7 +1164,7 @@ function AdminPage() {
                         >
                           {coverPickerProjectId === project.id
                             ? "Close images"
-                            : "Choose cover"}
+                            : "Manage images"}
                         </button>
                       )}
 
@@ -1107,7 +1217,10 @@ function AdminPage() {
                             changingCoverProjectId === project.id
                           }
                           isReordering={reorderingProjectId === project.id}
+                          isUploading={Boolean(currentImageUploadStage)}
+                          isDeletingImage={isDeletingImage}
                           onCoverChange={handleCoverChange}
+                          onDeleteImage={requestImageDeletion}
                           onReorder={handleImageReorder}
                         />
                       </div>
@@ -1146,6 +1259,51 @@ function AdminPage() {
                     onClick={handleDeleteProject}
                   >
                     {isDeletingProject ? "Deleting…" : "Delete permanently"}
+                  </button>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {imagePendingDeletion && (
+            <div className="admin-dialog-backdrop">
+              <section
+                className="admin-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="delete-image-heading"
+              >
+                <p className="admin-eyebrow">Permanent action</p>
+                <h2 id="delete-image-heading">Delete this image?</h2>
+                <img
+                  className="admin-dialog-image"
+                  src={getProjectImageUrl(
+                    imagePendingDeletion.image.storage_path,
+                  )}
+                  alt={
+                    imagePendingDeletion.image.alt_text_en ||
+                    imagePendingDeletion.project.title_en
+                  }
+                />
+                <p>
+                  This image will be permanently removed from “
+                  {imagePendingDeletion.project.title_en}”. This cannot be
+                  undone.
+                </p>
+                <div className="admin-dialog-actions">
+                  <button
+                    type="button"
+                    disabled={isDeletingImage}
+                    onClick={() => setImagePendingDeletion(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isDeletingImage}
+                    onClick={handleDeleteImage}
+                  >
+                    {isDeletingImage ? "Deleting…" : "Delete image"}
                   </button>
                 </div>
               </section>

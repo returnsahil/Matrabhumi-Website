@@ -5,7 +5,7 @@ const adminProjectFields =
   location_en, location_hi, completion_year, construction_status,
   is_published, sort_order, created_at, updated_at,
   project_images (
-    id, storage_path, alt_text_en, alt_text_hi,
+    id, project_id, storage_path, alt_text_en, alt_text_hi,
     is_cover, sort_order, created_at
   )`;
 
@@ -131,10 +131,12 @@ export function getProjectImageUrl(storagePath) {
 
 export function orderProjectImages(images = []) {
   return [...images].sort(
-    (first, second) =>
-      Number(second.is_cover) - Number(first.is_cover) ||
-      first.sort_order - second.sort_order,
+    (first, second) => first.sort_order - second.sort_order,
   );
+}
+
+export function getProjectCoverImage(images = []) {
+  return images.find((image) => image.is_cover) ?? orderProjectImages(images)[0];
 }
 
 function createSafeFileName(fileName) {
@@ -221,16 +223,38 @@ export async function setProjectCover(projectId, imageId, previousCoverId) {
   return { error: setError };
 }
 
-export async function reorderProjectImages(projectId, orderedImageIds) {
-  for (const [index, imageId] of orderedImageIds.entries()) {
-    const { error } = await supabase
-      .from("project_images")
-      .update({ sort_order: index + 1 })
-      .eq("project_id", projectId)
-      .eq("id", imageId);
+export async function deleteProjectImage(projectId, image) {
+  const { error } = await supabase
+    .from("project_images")
+    .delete()
+    .eq("project_id", projectId)
+    .eq("id", image.id);
 
-    if (error) return { error };
+  if (error) {
+    return { error, cleanupError: null };
   }
 
-  return { error: null };
+  const { error: cleanupError } = await supabase.storage
+    .from(projectImageBucket)
+    .remove([image.storage_path]);
+
+  return { error: null, cleanupError };
+}
+
+export async function reorderProjectImages(projectId, orderedImages) {
+  const updates = orderedImages.map((image, index) => ({
+    id: image.id,
+    project_id: projectId,
+    storage_path: image.storage_path,
+    alt_text_en: image.alt_text_en,
+    alt_text_hi: image.alt_text_hi,
+    is_cover: image.is_cover,
+    sort_order: index + 1,
+  }));
+
+  const { error } = await supabase
+    .from("project_images")
+    .upsert(updates, { onConflict: "id" });
+
+  return { error };
 }

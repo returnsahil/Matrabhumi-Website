@@ -60,6 +60,44 @@
   background: rgba(145, 61, 61, 0.08);
 }
 
+.projects-loading-showcase {
+  position: relative;
+  width: min(1200px, calc(100% - 48px));
+  aspect-ratio: 2.05 / 1;
+  margin: 0 auto 44px;
+  overflow: hidden;
+  background: #e9e7e1;
+  border-radius: 14px;
+}
+
+.projects-loading-showcase::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.46) 48%,
+    transparent 62%
+  );
+  transform: translateX(-100%);
+  animation: projects-loading-sweep 1.4s ease-in-out infinite;
+}
+
+.projects-loading-showcase span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@keyframes projects-loading-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 .project-card {
   position: relative;
   width: min(1200px, calc(100% - 48px));
@@ -292,6 +330,32 @@ body.project-lightbox-open {
   touch-action: pan-y;
 }
 
+.project-lightbox-stage.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.11) 48%,
+    transparent 62%
+  );
+  transform: translateX(-100%);
+  animation: lightbox-loading-sweep 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.project-lightbox-stage.is-loading img {
+  opacity: 0;
+}
+
+@keyframes lightbox-loading-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 .project-lightbox-stage img {
   display: block;
   width: auto;
@@ -365,6 +429,14 @@ body.project-lightbox-open {
     aspect-ratio: auto;
     margin-bottom: 28px;
     border-radius: 14px;
+  }
+
+  .projects-loading-showcase {
+    width: calc(100% - 32px);
+    height: min(64svh, 540px);
+    min-height: 420px;
+    aspect-ratio: auto;
+    margin-bottom: 28px;
   }
 
   .project-meta {
@@ -448,6 +520,14 @@ body.project-lightbox-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .projects-loading-showcase::after {
+    animation: none;
+  }
+
+  .project-lightbox-stage.is-loading::after {
+    animation: none;
+  }
+
   .project-card-cover img {
     transition: none;
   }
@@ -461,4 +541,17 @@ body.project-lightbox-open {
   --projects-ink: #eef1f5;
   --projects-muted: #aeb7c4;
   background: #0b1018;
+}
+
+:root[data-theme="dark"] .projects-loading-showcase {
+  background: #111927;
+}
+
+:root[data-theme="dark"] .projects-loading-showcase::after {
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.07) 48%,
+    transparent 62%
+  );
 }

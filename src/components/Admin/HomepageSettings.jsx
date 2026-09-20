@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import imageCompression from "browser-image-compression";
-import architectureHero from "../../assets/architecture-hero.png";
+import architectureHero from "../../assets/architecture-hero.webp";
 import { siteCopy } from "../../content/siteCopy.js";
 import {
   defaultHomepageSettings,

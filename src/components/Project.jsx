@@ -1,11 +1,26 @@
 import { useEffect, useState } from "react";
 import { ProjectCard } from "./ProjectCard";
 import {
+  getProjectCoverImage,
   getProjectImageUrl,
   getPublishedProjects,
   orderProjectImages,
 } from "../services/projects.js";
 import "./Projects.css";
+
+function preloadImage(imageUrl) {
+  return new Promise((resolve) => {
+    if (!imageUrl) {
+      resolve();
+      return;
+    }
+
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = resolve;
+    image.src = imageUrl;
+  });
+}
 
 function Projects({ copy, language }) {
   const [projects, setProjects] = useState([]);
@@ -24,6 +39,14 @@ function Projects({ copy, language }) {
       if (error) {
         setLoadError(copy.loadError);
       } else {
+        const coverImageUrls = publishedProjects
+          .map((project) => getProjectCoverImage(project.project_images))
+          .filter(Boolean)
+          .map((image) => getProjectImageUrl(image.storage_path));
+
+        await Promise.all(coverImageUrls.map(preloadImage));
+
+        if (!isCurrent) return;
         setProjects(publishedProjects);
       }
 
@@ -37,22 +60,27 @@ function Projects({ copy, language }) {
     };
   }, [copy.loadError]);
 
-  const visibleProjects = projects.map((project, index) => ({
-    ...project,
-    number: index + 1,
-    title:
-      language === "hi" ? project.title_hi || project.title_en : project.title_en,
-    description:
-      language === "hi"
-        ? project.description_hi || project.description_en
-        : project.description_en,
-    location:
-      language === "hi"
-        ? project.location_hi || project.location_en
-        : project.location_en,
-    statusLabel: copy.statuses[project.construction_status],
-    images: orderProjectImages(project.project_images)
-      .map((image) => ({
+  const visibleProjects = projects.map((project, index) => {
+    const coverImage = getProjectCoverImage(project.project_images);
+
+    return {
+      ...project,
+      number: index + 1,
+      title:
+        language === "hi"
+          ? project.title_hi || project.title_en
+          : project.title_en,
+      description:
+        language === "hi"
+          ? project.description_hi || project.description_en
+          : project.description_en,
+      location:
+        language === "hi"
+          ? project.location_hi || project.location_en
+          : project.location_en,
+      statusLabel: copy.statuses[project.construction_status],
+      coverImageId: coverImage?.id ?? null,
+      images: orderProjectImages(project.project_images).map((image) => ({
         ...image,
         url: getProjectImageUrl(image.storage_path),
         alt:
@@ -60,7 +88,8 @@ function Projects({ copy, language }) {
             ? image.alt_text_hi || image.alt_text_en || project.title_en
             : image.alt_text_en || project.title_en,
       })),
-  }));
+    };
+  });
 
   return (
     <section id="projects">
@@ -71,9 +100,9 @@ function Projects({ copy, language }) {
       </header>
 
       {isLoading && (
-        <p className="projects-message" role="status">
-          {copy.loading}
-        </p>
+        <div className="projects-loading-showcase" role="status">
+          <span>{copy.loading}</span>
+        </div>
       )}
 
       {loadError && (

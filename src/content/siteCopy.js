@@ -6,6 +6,7 @@ export const siteCopy = {
       "/about": "About | Matrabhumi",
       "/projects": "Projects | Matrabhumi",
       "/contact": "Contact | Matrabhumi",
+      notFound: "Page not found | Matrabhumi",
     },
     nav: {
       home: "Home",
@@ -117,6 +118,10 @@ export const siteCopy = {
       socials: "Social media links",
       comingSoon: "link coming soon",
     },
+    notFound: {
+      heading: "OOPs Looks like you're lost 🤭",
+      returnHome: "Return to home",
+    },
     footer: {
       description: "Thoughtful homes built with honesty, care, and purpose.",
       explore: "Explore",
@@ -132,6 +137,7 @@ export const siteCopy = {
       "/about": "हमारे बारे में | मातृभूमि",
       "/projects": "परियोजनाएँ | मातृभूमि",
       "/contact": "संपर्क | मातृभूमि",
+      notFound: "पृष्ठ नहीं मिला | मातृभूमि",
     },
     nav: {
       home: "मुखपृष्ठ",
@@ -242,6 +248,10 @@ export const siteCopy = {
       follow: "मातृभूमि को फॉलो करें",
       socials: "सोशल मीडिया लिंक",
       comingSoon: "लिंक जल्द उपलब्ध होगा",
+    },
+    notFound: {
+      heading: "ओह! लगता है आप रास्ता भूल गए हैं 🤭",
+      returnHome: "मुखपृष्ठ पर लौटें",
     },
     footer: {
       description: "ईमानदारी, देखभाल और उद्देश्य के साथ बनाए गए सुंदर घर।",

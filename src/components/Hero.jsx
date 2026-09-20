@@ -1,11 +1,11 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import architectureHero from "../assets/architecture-hero.png";
-import house4 from "../assets/projects/modern-house-04.png";
+import architectureHero from "../assets/architecture-hero.webp";
+import house4 from "../assets/projects/modern-house-04.webp";
 import {
   getFeaturedProjects,
+  getProjectCoverImage,
   getProjectImageUrl,
-  orderProjectImages,
 } from "../services/projects.js";
 import {
   defaultHomepageSettings,
@@ -25,6 +25,8 @@ function Hero({ copy, projectCopy, language }) {
   const [homepageSettings, setHomepageSettings] = useState(
     defaultHomepageSettings,
   );
+  const [homepageSettingsReady, setHomepageSettingsReady] = useState(false);
+  const [loadedHeroImage, setLoadedHeroImage] = useState("");
 
   useEffect(() => {
     let isCurrent = true;
@@ -52,6 +54,10 @@ function Hero({ copy, projectCopy, language }) {
 
       if (isCurrent && !error) {
         setHomepageSettings(settings);
+      }
+
+      if (isCurrent) {
+        setHomepageSettingsReady(true);
       }
     }
 
@@ -102,9 +108,11 @@ function Hero({ copy, projectCopy, language }) {
   const homepageHeroImage = homepageSettings.hero_image_path
     ? getSiteAssetUrl(homepageSettings.hero_image_path)
     : architectureHero;
+  const heroIsReady =
+    homepageSettingsReady && loadedHeroImage === homepageHeroImage;
 
   const homepageProjects = featuredProjects.map((project) => {
-    const coverImage = orderProjectImages(project.project_images)[0];
+    const coverImage = getProjectCoverImage(project.project_images);
 
     return {
       id: project.id,
@@ -207,7 +215,12 @@ function Hero({ copy, projectCopy, language }) {
         </g>
       </svg>
 
-      <section className="hero" id="home" aria-labelledby="hero-heading">
+      <section
+        className={`hero ${heroIsReady ? "is-ready" : "is-loading"}`}
+        id="home"
+        aria-labelledby="hero-heading"
+        aria-busy={!heroIsReady}
+      >
         <div className="hero-content">
           <p className="hero-label">{copy.heroLabel}</p>
           <h2 className="hero-heading" id="hero-heading">
@@ -228,6 +241,17 @@ function Hero({ copy, projectCopy, language }) {
           className="hero-image"
           src={homepageHeroImage}
           alt={copy.heroAlt}
+          onLoad={() => setLoadedHeroImage(homepageHeroImage)}
+          onError={() => {
+            if (homepageSettings.hero_image_path) {
+              setHomepageSettings((current) => ({
+                ...current,
+                hero_image_path: null,
+              }));
+            } else {
+              setLoadedHeroImage(homepageHeroImage);
+            }
+          }}
         />
       </section>
 

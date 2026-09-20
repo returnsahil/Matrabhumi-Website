@@ -1,0 +1,123 @@
+.not-found {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: min(1200px, calc(100% - 32px));
+  min-height: clamp(500px, 70vh, 760px);
+  margin: 0 auto;
+  padding: clamp(72px, 10vw, 130px) 24px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.not-found::before,
+.not-found::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(36vw, 420px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c49a45, transparent);
+  opacity: 0.45;
+  transform: rotate(-32deg);
+}
+
+.not-found::before {
+  top: 26%;
+  left: -8%;
+}
+
+.not-found::after {
+  right: -7%;
+  bottom: 25%;
+}
+
+.not-found-code {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(8rem, 25vw, 18rem);
+  font-weight: 800;
+  line-height: 0.78;
+  letter-spacing: -0.09em;
+}
+
+.not-found-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin-top: clamp(30px, 5vw, 48px);
+  object-fit: contain;
+  filter: drop-shadow(0 7px 12px rgba(196, 154, 69, 0.16));
+}
+
+.not-found h1 {
+  margin: 18px 0 0;
+  color: #273142;
+  font-size: clamp(1.35rem, 3vw, 2.25rem);
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+
+.not-found-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 28px;
+  padding: 0 24px;
+  color: #ffffff;
+  background: #111827;
+  border: 1px solid #111827;
+  border-radius: 9px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.not-found-home:hover {
+  background: #273142;
+  border-color: #273142;
+  transform: translateY(-2px);
+}
+
+.not-found-home:focus-visible {
+  outline: 3px solid #c49a45;
+  outline-offset: 4px;
+}
+
+:root[data-theme="dark"] .not-found-code,
+:root[data-theme="dark"] .not-found h1 {
+  color: #eef1f5;
+}
+
+:root[data-theme="dark"] .not-found-home {
+  color: #111827;
+  background: #f4f1e9;
+  border-color: #f4f1e9;
+}
+
+:root[data-theme="dark"] .not-found-home:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .not-found {
+    min-height: 62vh;
+  }
+
+  .not-found-code {
+    letter-spacing: -0.07em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-home {
+    transition: none;
+  }
+}

@@ -9,9 +9,15 @@ import Contact from "./components/Contact.jsx";
 import Projects from "./components/Project.jsx";
 import { siteCopy } from "./content/siteCopy.js";
 import AdminPage from "./components/Admin/Admin.jsx";
+import NotFound from "./components/NotFound.jsx";
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const normalizedPath = location.pathname.replace(/\/+$/, "") || "/";
+  const isKnownPublicRoute = ["/", "/about", "/projects", "/contact"].includes(
+    normalizedPath,
+  );
+  const showSiteChrome = !isAdminRoute && isKnownPublicRoute;
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("matrabhumi-theme");
     if (savedTheme) return savedTheme === "dark";
@@ -23,8 +29,10 @@ function App() {
   const copy = siteCopy[language];
 
   useEffect(() => {
-    document.title = copy.pageTitles[location.pathname] || copy.brand;
-  }, [copy, location.pathname]);
+    document.title =
+      copy.pageTitles[location.pathname] ||
+      (isAdminRoute ? `Admin | ${copy.brand}` : copy.pageTitles.notFound);
+  }, [copy, isAdminRoute, location.pathname]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? "dark" : "light";
@@ -38,7 +46,7 @@ function App() {
 
   return (
     <div className="site-wrapper">
-      {!isAdminRoute && (
+      {showSiteChrome && (
         <Navbar
           copy={copy.nav}
           brand={copy.brand}
@@ -72,9 +80,10 @@ function App() {
             element={<Projects copy={copy.projects} language={language} />}
           />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFound copy={copy.notFound} />} />
         </Routes>
       </main>
-      {!isAdminRoute && (
+      {showSiteChrome && (
         <Footer copy={copy.footer} navCopy={copy.nav} brand={copy.brand} />
       )}
     </div>
