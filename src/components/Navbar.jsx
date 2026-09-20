@@ -14,14 +14,21 @@ function Navbar({
   return (
     <header className="navbar">
       <h1 className="brand">
-        <img
-          src="/brand/Matrabhumi-logo-web.png"
-          alt=""
-          width="34"
-          height="34"
-          aria-hidden="true"
-        />
-        <span>{brand}</span>
+        <NavLink
+          className="brand-home"
+          to="/"
+          aria-label="Matrabhumi home"
+          onClick={() => setMenuOpen(false)}
+        >
+          <img
+            src="/brand/Matrabhumi-logo-web.png"
+            alt=""
+            width="34"
+            height="34"
+            aria-hidden="true"
+          />
+          <span>{brand}</span>
+        </NavLink>
       </h1>
       <nav
         className={menuOpen ? "nav-menu open" : "nav-menu"}

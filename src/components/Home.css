@@ -129,19 +129,19 @@
   animation: hero-content-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.home-page .hero-content > :nth-child(1) {
+.home-page .hero-label {
   animation-delay: 0.12s;
 }
 
-.home-page .hero-content > :nth-child(2) {
+.home-page .hero-heading {
   animation-delay: 0.24s;
 }
 
-.home-page .hero-content > :nth-child(3) {
+.home-page .hero-description {
   animation-delay: 0.38s;
 }
 
-.home-page .hero-content > :nth-child(4) {
+.home-page .hero-actions {
   animation-delay: 0.5s;
 }
 

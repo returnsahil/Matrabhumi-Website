@@ -7,6 +7,12 @@ import {
   getProjectImageUrl,
   orderProjectImages,
 } from "../services/projects.js";
+import {
+  defaultHomepageSettings,
+  getHomepageSettings,
+  getSiteAssetUrl,
+  homepageSettingsChangeEvent,
+} from "../services/siteSettings.js";
 import "./Home.css";
 
 function Hero({ copy, projectCopy, language }) {
@@ -16,6 +22,9 @@ function Hero({ copy, projectCopy, language }) {
     y: 0,
   });
   const [featuredProjects, setFeaturedProjects] = useState([]);
+  const [homepageSettings, setHomepageSettings] = useState(
+    defaultHomepageSettings,
+  );
 
   useEffect(() => {
     let isCurrent = true;
@@ -34,6 +43,65 @@ function Hero({ copy, projectCopy, language }) {
       isCurrent = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadHomepageSettings() {
+      const { settings, error } = await getHomepageSettings();
+
+      if (isCurrent && !error) {
+        setHomepageSettings(settings);
+      }
+    }
+
+    loadHomepageSettings();
+
+    function refreshHomepageSettings(event) {
+      if (
+        event instanceof StorageEvent &&
+        event.key !== homepageSettingsChangeEvent
+      ) {
+        return;
+      }
+
+      loadHomepageSettings();
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === "visible") {
+        loadHomepageSettings();
+      }
+    }
+
+    window.addEventListener("focus", refreshHomepageSettings);
+    window.addEventListener("storage", refreshHomepageSettings);
+    window.addEventListener(
+      homepageSettingsChangeEvent,
+      refreshHomepageSettings,
+    );
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      isCurrent = false;
+      window.removeEventListener("focus", refreshHomepageSettings);
+      window.removeEventListener("storage", refreshHomepageSettings);
+      window.removeEventListener(
+        homepageSettingsChangeEvent,
+        refreshHomepageSettings,
+      );
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, []);
+
+  const customHeroHeading =
+    language === "hi"
+      ? homepageSettings.hero_line_hi
+      : homepageSettings.hero_line_en;
+  const heroHeading = customHeroHeading || copy.heroHeading;
+  const homepageHeroImage = homepageSettings.hero_image_path
+    ? getSiteAssetUrl(homepageSettings.hero_image_path)
+    : architectureHero;
 
   const homepageProjects = featuredProjects.map((project) => {
     const coverImage = orderProjectImages(project.project_images)[0];
@@ -143,7 +211,7 @@ function Hero({ copy, projectCopy, language }) {
         <div className="hero-content">
           <p className="hero-label">{copy.heroLabel}</p>
           <h2 className="hero-heading" id="hero-heading">
-            {copy.heroHeading}
+            {heroHeading}
           </h2>
 
           <p className="hero-description">{copy.heroDescription}</p>
@@ -156,7 +224,11 @@ function Hero({ copy, projectCopy, language }) {
             </Link>
           </div>
         </div>
-        <img className="hero-image" src={architectureHero} alt={copy.heroAlt} />
+        <img
+          className="hero-image"
+          src={homepageHeroImage}
+          alt={copy.heroAlt}
+        />
       </section>
 
       <section

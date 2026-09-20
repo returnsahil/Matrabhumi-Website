@@ -29,6 +29,7 @@ import {
   updateProject,
   uploadProjectImages,
 } from "../../services/projects.js";
+import HomepageSettings from "./HomepageSettings.jsx";
 import "./Admin.css";
 
 const emptyProjectForm = {
@@ -742,6 +743,8 @@ function AdminPage() {
             <span aria-hidden="true" />
             Supabase authentication and admin authorization are active.
           </div>
+
+          <HomepageSettings />
 
           <div className="admin-projects-heading">
             <div>
