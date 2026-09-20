@@ -295,6 +295,20 @@ main {
   flex: 1;
 }
 
+.route-loading {
+  display: grid;
+  min-height: 55vh;
+  margin: 0;
+  color: #596273;
+  font-size: 0.85rem;
+  place-items: center;
+}
+
+.route-loading.is-admin {
+  min-height: 100vh;
+  background: #f3f5f7;
+}
+
 .hero {
   position: relative;
   isolation: isolate;
@@ -439,16 +453,15 @@ main {
 }
 
 .footer-main {
-  display: grid;
-  grid-template-areas: "brand navigation motto";
-  grid-template-columns: minmax(180px, 1fr) auto minmax(220px, 1fr);
+  display: flex;
   align-items: center;
-  gap: clamp(24px, 4vw, 56px);
-  padding: 22px clamp(28px, 3vw, 40px) 12px;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px clamp(28px, 3vw, 40px) 18px;
 }
 
 .footer-intro {
-  display: contents;
+  flex: 0 0 auto;
 }
 
 .footer-brand {
@@ -476,31 +489,18 @@ main {
   color: #c49a45;
 }
 
-.footer-intro p {
-  grid-area: motto;
-  justify-self: end;
-  max-width: 230px;
-  margin: 0;
-  color: #7a8390;
-  font-size: 0.64rem;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.12em;
-  text-align: right;
-  text-transform: uppercase;
-}
-
 .footer-column h2 {
   display: none;
 }
 
 .footer-column:not(.footer-socials) {
-  grid-area: navigation;
+  margin-left: auto;
 }
 
 .footer-column ul {
   display: flex;
-  gap: clamp(16px, 2.4vw, 30px);
+  align-items: center;
+  gap: clamp(20px, 2.8vw, 34px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -509,7 +509,8 @@ main {
 .footer-column a {
   width: fit-content;
   color: #4b5563;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -602,11 +603,7 @@ main {
 
 @media (max-width: 850px) {
   .footer-main {
-    grid-template-areas:
-      "brand motto"
-      "navigation navigation";
-    grid-template-columns: 1fr 1fr;
-    row-gap: 18px;
+    gap: 22px;
   }
 }
 
@@ -616,19 +613,14 @@ main {
   }
 
   .footer-main {
-    grid-template-areas:
-      "brand"
-      "navigation"
-      "motto";
-    grid-template-columns: 1fr;
-    justify-items: center;
+    align-items: center;
+    flex-direction: column;
     gap: 18px;
     padding: 24px 20px 14px;
   }
 
-  .footer-intro p {
-    justify-self: center;
-    text-align: center;
+  .footer-column:not(.footer-socials) {
+    margin-left: 0;
   }
 
   .footer-column ul {

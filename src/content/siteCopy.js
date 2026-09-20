@@ -2,11 +2,22 @@ export const siteCopy = {
   en: {
     brand: "Matrabhumi",
     pageTitles: {
-      "/": "Matrabhumi",
+      "/": "Matrabhumi Construction | Thoughtful Homes in Indore",
       "/about": "About | Matrabhumi",
       "/projects": "Projects | Matrabhumi",
       "/contact": "Contact | Matrabhumi",
       notFound: "Page not found | Matrabhumi",
+    },
+    pageDescriptions: {
+      "/":
+        "Matrabhumi Construction creates thoughtful residential spaces in Indore with quality workmanship, honest communication and direct client involvement.",
+      "/about":
+        "Discover how Mr. Kailash Lobaniya and Dhruv Lobaniya built Matrabhumi around honesty, quality and direct communication with every client.",
+      "/projects":
+        "Explore Matrabhumi Construction projects designed and built with clarity, warmth, quality and purpose.",
+      "/contact":
+        "Contact Dhruv Lobaniya, Mr. Kailash Lobaniya or Matrabhumi Construction directly by phone or WhatsApp.",
+      notFound: "The page you requested could not be found.",
     },
     nav: {
       home: "Home",
@@ -133,11 +144,22 @@ export const siteCopy = {
   hi: {
     brand: "मातृभूमि",
     pageTitles: {
-      "/": "मातृभूमि",
+      "/": "मातृभूमि कंस्ट्रक्शन | इंदौर में विचारपूर्ण घर",
       "/about": "हमारे बारे में | मातृभूमि",
       "/projects": "परियोजनाएँ | मातृभूमि",
       "/contact": "संपर्क | मातृभूमि",
       notFound: "पृष्ठ नहीं मिला | मातृभूमि",
+    },
+    pageDescriptions: {
+      "/":
+        "मातृभूमि कंस्ट्रक्शन इंदौर में गुणवत्ता, ईमानदार संवाद और ग्राहकों से सीधे संपर्क के साथ विचारपूर्ण आवासीय स्थान बनाती है।",
+      "/about":
+        "जानिए कैसे श्री कैलाश लोबानिया और ध्रुव लोबानिया ने ईमानदारी, गुणवत्ता और सीधे ग्राहक संवाद के आधार पर मातृभूमि की शुरुआत की।",
+      "/projects":
+        "स्पष्टता, आत्मीयता, गुणवत्ता और उद्देश्य के साथ डिज़ाइन और निर्मित मातृभूमि की परियोजनाएँ देखें।",
+      "/contact":
+        "ध्रुव लोबानिया, श्री कैलाश लोबानिया या मातृभूमि कंस्ट्रक्शन से फोन अथवा व्हाट्सऐप पर सीधे संपर्क करें।",
+      notFound: "आपके द्वारा खोजा गया पृष्ठ उपलब्ध नहीं है।",
     },
     nav: {
       home: "मुखपृष्ठ",

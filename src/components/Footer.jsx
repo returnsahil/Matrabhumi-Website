@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 function Footer({ copy, navCopy, brand }) {
   return (
@@ -16,7 +15,6 @@ function Footer({ copy, navCopy, brand }) {
             />
             <span>{brand}</span>
           </Link>
-          <p>{copy.description}</p>
         </div>
 
         <nav className="footer-column" aria-label="Footer navigation">
@@ -37,27 +35,6 @@ function Footer({ copy, navCopy, brand }) {
           </ul>
         </nav>
 
-        <div className="footer-column footer-socials">
-          <h2>{copy.follow}</h2>
-          <div aria-label="Social media links">
-            <a
-              href="https://www.instagram.com/matrabhumi_construction_indore/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Open Matrabhumi Construction on Instagram"
-            >
-              <FaInstagram aria-hidden="true" />
-            </a>
-            <a
-              href="https://x.com/matrabhumipoint"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Open Matrabhumi on X"
-            >
-              <FaXTwitter aria-hidden="true" />
-            </a>
-          </div>
-        </div>
       </div>
 
       <div className="footer-bottom">

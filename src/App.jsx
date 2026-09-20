@@ -2,14 +2,17 @@ import "./App.css";
 import Footer from "./components/Footer.jsx";
 import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
-import About from "./components/About.jsx";
 import { Routes, Route, useLocation } from "react-router";
-import { useEffect, useState } from "react";
-import Contact from "./components/Contact.jsx";
-import Projects from "./components/Project.jsx";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { siteCopy } from "./content/siteCopy.js";
-import AdminPage from "./components/Admin/Admin.jsx";
 import NotFound from "./components/NotFound.jsx";
+import Seo from "./components/Seo.jsx";
+
+const About = lazy(() => import("./components/About.jsx"));
+const Contact = lazy(() => import("./components/Contact.jsx"));
+const Projects = lazy(() => import("./components/Project.jsx"));
+const AdminPage = lazy(() => import("./components/Admin/Admin.jsx"));
+
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -29,12 +32,6 @@ function App() {
   const copy = siteCopy[language];
 
   useEffect(() => {
-    document.title =
-      copy.pageTitles[location.pathname] ||
-      (isAdminRoute ? `Admin | ${copy.brand}` : copy.pageTitles.notFound);
-  }, [copy, isAdminRoute, location.pathname]);
-
-  useEffect(() => {
     document.documentElement.dataset.theme = isDark ? "dark" : "light";
     localStorage.setItem("matrabhumi-theme", isDark ? "dark" : "light");
   }, [isDark]);
@@ -46,6 +43,7 @@ function App() {
 
   return (
     <div className="site-wrapper">
+      <Seo copy={copy} language={language} pathname={location.pathname} />
       {showSiteChrome && (
         <Navbar
           copy={copy.nav}
@@ -59,29 +57,40 @@ function App() {
         />
       )}
       <main className={isAdminRoute ? "admin-main" : undefined}>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Hero
-                copy={copy.home}
-                projectCopy={copy.projects}
-                language={language}
-              />
-            }
-          />
-          <Route
-            path="/about"
-            element={<About copy={copy.about} language={language} />}
-          />
-          <Route path="/contact" element={<Contact copy={copy.contact} />} />
-          <Route
-            path="/projects"
-            element={<Projects copy={copy.projects} language={language} />}
-          />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="*" element={<NotFound copy={copy.notFound} />} />
-        </Routes>
+        <Suspense
+          fallback={
+            <p
+              className={`route-loading${isAdminRoute ? " is-admin" : ""}`}
+              role="status"
+            >
+              Loading…
+            </p>
+          }
+        >
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Hero
+                  copy={copy.home}
+                  projectCopy={copy.projects}
+                  language={language}
+                />
+              }
+            />
+            <Route
+              path="/about"
+              element={<About copy={copy.about} language={language} />}
+            />
+            <Route path="/contact" element={<Contact copy={copy.contact} />} />
+            <Route
+              path="/projects"
+              element={<Projects copy={copy.projects} language={language} />}
+            />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="*" element={<NotFound copy={copy.notFound} />} />
+          </Routes>
+        </Suspense>
       </main>
       {showSiteChrome && (
         <Footer copy={copy.footer} navCopy={copy.nav} brand={copy.brand} />
