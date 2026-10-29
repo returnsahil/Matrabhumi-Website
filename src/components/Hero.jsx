@@ -1,41 +1,55 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import architectureHero from "../assets/architecture-hero.webp";
-import house4 from "../assets/projects/modern-house-04.webp";
-import {
-  getFeaturedProjects,
-  getProjectCoverImage,
-  getProjectImageUrl,
-} from "../services/projects.js";
+import { FiMessageCircle, FiCompass, FiCheckSquare, FiUsers } from "react-icons/fi";
 import {
   defaultHomepageSettings,
-  getHomepageSettings,
-  getSiteAssetUrl,
   homepageSettingsChangeEvent,
-} from "../services/siteSettings.js";
+} from "../content/homepageSettingsConfig.js";
 import "./Home.css";
+import FeaturedProjectStrip from "./FeaturedProjectStrip.jsx";
+
+const trustIcons = [FiMessageCircle, FiCompass, FiCheckSquare, FiUsers];
 
 function Hero({ copy, projectCopy, language }) {
-  const [projectCursor, setProjectCursor] = useState({
-    visible: false,
-    x: 0,
-    y: 0,
-  });
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [homepageSettings, setHomepageSettings] = useState(
     defaultHomepageSettings,
   );
-  const [homepageSettingsReady, setHomepageSettingsReady] = useState(false);
-  const [loadedHeroImage, setLoadedHeroImage] = useState("");
+  const [heroImageUrl, setHeroImageUrl] = useState(null);
 
   useEffect(() => {
     let isCurrent = true;
 
     async function loadFeaturedProjects() {
-      const { projects, error } = await getFeaturedProjects();
+      try {
+        const {
+          getFeaturedProjects,
+          getProjectCoverImage,
+          getProjectImageUrl,
+        } = await import("../services/projects.js");
+        const { projects, error } = await getFeaturedProjects();
 
-      if (isCurrent && !error) {
-        setFeaturedProjects(projects);
+        if (isCurrent && !error) {
+          setFeaturedProjects(
+            projects.map((project) => {
+              const coverImage = getProjectCoverImage(project.project_images);
+              return {
+                ...project,
+                imageUrl: coverImage
+                  ? getProjectImageUrl(coverImage.storage_path)
+                  : null,
+                imageAltEn: coverImage?.alt_text_en || project.title_en,
+                imageAltHi:
+                  coverImage?.alt_text_hi ||
+                  coverImage?.alt_text_en ||
+                  project.title_en,
+              };
+            }),
+          );
+        }
+      } catch {
+        // The page remains usable if featured work cannot be loaded.
       }
     }
 
@@ -48,16 +62,36 @@ function Hero({ copy, projectCopy, language }) {
 
   useEffect(() => {
     let isCurrent = true;
+    let latestRequest = 0;
 
     async function loadHomepageSettings() {
-      const { settings, error } = await getHomepageSettings();
+      const request = ++latestRequest;
+      try {
+        const { getHomepageSettings, getSiteAssetUrl } = await import(
+          "../services/siteSettings.js"
+        );
+        const { settings, error } = await getHomepageSettings();
+        if (!isCurrent || request !== latestRequest) return;
+        if (error) {
+          setHeroImageUrl((current) => current ?? architectureHero);
+          return;
+        }
 
-      if (isCurrent && !error) {
         setHomepageSettings(settings);
-      }
+        if (!settings.hero_image_path) {
+          setHeroImageUrl(architectureHero);
+          return;
+        }
 
-      if (isCurrent) {
-        setHomepageSettingsReady(true);
+        const imageUrl = getSiteAssetUrl(settings.hero_image_path);
+        const image = new Image();
+        image.src = imageUrl;
+        await image.decode();
+        if (isCurrent && request === latestRequest) setHeroImageUrl(imageUrl);
+      } catch {
+        if (isCurrent && request === latestRequest) {
+          setHeroImageUrl((current) => current ?? architectureHero);
+        }
       }
     }
 
@@ -105,15 +139,8 @@ function Hero({ copy, projectCopy, language }) {
       ? homepageSettings.hero_line_hi
       : homepageSettings.hero_line_en;
   const heroHeading = customHeroHeading || copy.heroHeading;
-  const homepageHeroImage = homepageSettings.hero_image_path
-    ? getSiteAssetUrl(homepageSettings.hero_image_path)
-    : architectureHero;
-  const heroIsReady =
-    homepageSettingsReady && loadedHeroImage === homepageHeroImage;
 
   const homepageProjects = featuredProjects.map((project) => {
-    const coverImage = getProjectCoverImage(project.project_images);
-
     return {
       id: project.id,
       title:
@@ -121,35 +148,10 @@ function Hero({ copy, projectCopy, language }) {
           ? project.title_hi || project.title_en
           : project.title_en,
       status: projectCopy.statuses[project.construction_status],
-      imageUrl: coverImage
-        ? getProjectImageUrl(coverImage.storage_path)
-        : null,
-      imageAlt: coverImage
-        ? language === "hi"
-          ? coverImage.alt_text_hi || coverImage.alt_text_en || project.title_en
-          : coverImage.alt_text_en || project.title_en
-        : "",
+      imageUrl: project.imageUrl,
+      imageAlt: language === "hi" ? project.imageAltHi : project.imageAltEn,
     };
   });
-
-  const homepageProjectSlots = Array.from(
-    { length: 3 },
-    (_, index) => homepageProjects[index] ?? null,
-  );
-
-  function moveProjectCursor(event) {
-    if (event.pointerType === "touch") return;
-
-    setProjectCursor({
-      visible: true,
-      x: event.clientX,
-      y: event.clientY,
-    });
-  }
-
-  function hideProjectCursor() {
-    setProjectCursor((current) => ({ ...current, visible: false }));
-  }
 
   return (
     <div className="home-page">
@@ -216,10 +218,9 @@ function Hero({ copy, projectCopy, language }) {
       </svg>
 
       <section
-        className={`hero ${heroIsReady ? "is-ready" : "is-loading"}`}
+        className={`hero${heroImageUrl && heroImageUrl !== architectureHero ? " hero--custom" : ""}`}
         id="home"
         aria-labelledby="hero-heading"
-        aria-busy={!heroIsReady}
       >
         <div className="hero-content">
           <p className="hero-label">{copy.heroLabel}</p>
@@ -237,22 +238,20 @@ function Hero({ copy, projectCopy, language }) {
             </Link>
           </div>
         </div>
-        <img
-          className="hero-image"
-          src={homepageHeroImage}
-          alt={copy.heroAlt}
-          onLoad={() => setLoadedHeroImage(homepageHeroImage)}
-          onError={() => {
-            if (homepageSettings.hero_image_path) {
-              setHomepageSettings((current) => ({
-                ...current,
-                hero_image_path: null,
-              }));
-            } else {
-              setLoadedHeroImage(homepageHeroImage);
-            }
-          }}
-        />
+        {heroImageUrl && (
+          <img
+            className="hero-image"
+            src={heroImageUrl}
+            alt={copy.heroAlt}
+            fetchPriority="high"
+            decoding="async"
+            onError={() => {
+              if (heroImageUrl !== architectureHero) {
+                setHeroImageUrl(architectureHero);
+              }
+            }}
+          />
+        )}
       </section>
 
       <section
@@ -260,60 +259,11 @@ function Hero({ copy, projectCopy, language }) {
         aria-labelledby="featured-projects-heading"
       >
         <div className="section-heading">
-          <p className="section-label">{copy.selectedWork}</p>
           <h2 id="featured-projects-heading">{copy.projectsHeading}</h2>
           <p>{copy.projectsIntro}</p>
         </div>
 
-        <div className="featured-projects-preview">
-          {homepageProjectSlots.map((project, index) => {
-            const cardClassName = `featured-project-card${
-              index === 0 ? " featured-project-card--wide" : ""
-            }${project ? "" : " is-empty"}`;
-
-            const imageArea = (
-              <div className="featured-project-image">
-                {project?.imageUrl ? (
-                  <img src={project.imageUrl} alt={project.imageAlt} loading="lazy" />
-                ) : (
-                  <div className="featured-project-empty" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                      <path d="M4 5.5h16v13H4z" />
-                      <circle cx="9" cy="10" r="1.5" />
-                      <path d="m5.5 17 4.5-4 3 2.5 2.5-2 3 3.5" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            );
-
-            if (!project) {
-              return (
-                <div className={cardClassName} key={`empty-project-${index}`}>
-                  {imageArea}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                className={cardClassName}
-                to="/projects"
-                aria-label={project.title}
-                key={project.id}
-                onPointerEnter={moveProjectCursor}
-                onPointerMove={moveProjectCursor}
-                onPointerLeave={hideProjectCursor}
-              >
-                {imageArea}
-                <div className="featured-project-copy">
-                  <p>{project.status}</p>
-                  <h3>{project.title}</h3>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        <FeaturedProjectStrip projects={homepageProjects} />
 
         <Link className="text-link" to="/projects">
           {copy.exploreProjects}
@@ -321,15 +271,6 @@ function Hero({ copy, projectCopy, language }) {
       </section>
 
       <section className="home-about" aria-labelledby="home-about-heading">
-        <div className="home-about-visual">
-          <img
-            src={house4}
-            alt={copy.projectAlts[0]}
-            width="1536"
-            height="1024"
-            loading="lazy"
-          />
-        </div>
         <div className="home-about-content">
           <div className="section-heading">
             <p className="section-label">{copy.aboutLabel}</p>
@@ -342,6 +283,20 @@ function Hero({ copy, projectCopy, language }) {
             </Link>
           </div>
         </div>
+        <ul className="home-trust-points">
+          {copy.aboutPoints.map(([title, description], index) => {
+            const Icon = trustIcons[index];
+            return (
+              <li className="home-trust-point" key={title}>
+                <span className="home-trust-icon" aria-hidden="true"><Icon /></span>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <section className="home-process" aria-labelledby="process-heading">
@@ -369,13 +324,6 @@ function Hero({ copy, projectCopy, language }) {
         </Link>
       </section>
 
-      <div
-        className={`project-cursor${projectCursor.visible ? " is-visible" : ""}`}
-        style={{ left: projectCursor.x, top: projectCursor.y }}
-        aria-hidden="true"
-      >
-        {copy.projectCursor}
-      </div>
     </div>
   );
 }

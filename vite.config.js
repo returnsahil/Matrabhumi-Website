@@ -39,12 +39,25 @@ Sitemap: ${siteUrl}/sitemap.xml
   };
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const siteUrlValue = env.VITE_SITE_URL || process.env.CF_PAGES_URL;
+
+  if (command === "build") {
+    const missing = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"].filter(
+      (name) => !env[name]?.trim(),
+    );
+    if (missing.length) {
+      throw new Error(`Missing build environment variables: ${missing.join(", ")}`);
+    }
+    if (!siteUrlValue) {
+      throw new Error(
+        "Set VITE_SITE_URL to the public site address before building. Cloudflare Pages builds can use CF_PAGES_URL automatically.",
+      );
+    }
+  }
   const siteUrl = normalizeSiteUrl(
-    env.VITE_SITE_URL ||
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-      process.env.VERCEL_URL,
+    siteUrlValue,
   );
 
   return {

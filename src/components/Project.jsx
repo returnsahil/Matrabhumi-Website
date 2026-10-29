@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ProjectCard } from "./ProjectCard";
+import ProjectJournal from "./ProjectJournal.jsx";
 import {
   getProjectCoverImage,
   getProjectImageUrl,
@@ -7,20 +7,6 @@ import {
   orderProjectImages,
 } from "../services/projects.js";
 import "./Projects.css";
-
-function preloadImage(imageUrl) {
-  return new Promise((resolve) => {
-    if (!imageUrl) {
-      resolve();
-      return;
-    }
-
-    const image = new Image();
-    image.onload = resolve;
-    image.onerror = resolve;
-    image.src = imageUrl;
-  });
-}
 
 function Projects({ copy, language }) {
   const [projects, setProjects] = useState([]);
@@ -31,26 +17,23 @@ function Projects({ copy, language }) {
     let isCurrent = true;
 
     async function loadProjects() {
-      const { projects: publishedProjects, error } =
-        await getPublishedProjects();
-
-      if (!isCurrent) return;
-
-      if (error) {
-        setLoadError(copy.loadError);
-      } else {
-        const coverImageUrls = publishedProjects
-          .map((project) => getProjectCoverImage(project.project_images))
-          .filter(Boolean)
-          .map((image) => getProjectImageUrl(image.storage_path));
-
-        await Promise.all(coverImageUrls.map(preloadImage));
+      try {
+        const { projects: publishedProjects, error } =
+          await getPublishedProjects();
 
         if (!isCurrent) return;
-        setProjects(publishedProjects);
-      }
 
-      setIsLoading(false);
+        if (error) {
+          setLoadError(copy.loadError);
+        } else {
+          setProjects(publishedProjects);
+          setLoadError("");
+        }
+      } catch {
+        if (isCurrent) setLoadError(copy.loadError);
+      } finally {
+        if (isCurrent) setIsLoading(false);
+      }
     }
 
     loadProjects();
@@ -90,13 +73,21 @@ function Projects({ copy, language }) {
       })),
     };
   });
+  const renderableProjects = visibleProjects.filter((project) => project.images.length > 0);
 
   return (
     <section id="projects">
       <header className="projects-header">
-        <p className="projects-label">{copy.label}</p>
-        <h1>{copy.heading}</h1>
-        <p className="projects-intro">{copy.intro}</p>
+        <div className="projects-header-inner">
+          <p className="projects-label">{copy.label}</p>
+          <h1>{copy.heading}</h1>
+          <p className="projects-intro">{copy.intro}</p>
+        </div>
+        {!isLoading && !loadError && renderableProjects.length > 0 && (
+          <a className="projects-scroll-cue" href="#projects-showcase">
+            {copy.scrollCue}<span aria-hidden="true">↓</span>
+          </a>
+        )}
       </header>
 
       {isLoading && (
@@ -111,15 +102,13 @@ function Projects({ copy, language }) {
         </p>
       )}
 
-      {!isLoading && !loadError && visibleProjects.length === 0 && (
+      {!isLoading && !loadError && renderableProjects.length === 0 && (
         <p className="projects-message">{copy.empty}</p>
       )}
 
-      <div className="projects-grid">
-        {visibleProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
+      {renderableProjects.length > 0 && (
+        <ProjectJournal projects={renderableProjects} copy={copy} />
+      )}
     </section>
   );
 }

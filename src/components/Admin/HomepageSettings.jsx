@@ -25,10 +25,10 @@ const defaultHeroForm = {
 
 async function optimizeHeroImage(file) {
   const optimizedImage = await imageCompression(file, {
-    maxSizeMB: 3,
-    maxWidthOrHeight: 3000,
+    maxSizeMB: 0.6,
+    maxWidthOrHeight: 2000,
     fileType: "image/webp",
-    initialQuality: 0.9,
+    initialQuality: 0.82,
     preserveExif: false,
     useWebWorker: true,
   });

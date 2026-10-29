@@ -60,7 +60,8 @@ export async function getPublishedProjects() {
     .select(adminProjectFields)
     .eq("is_published", true)
     .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .abortSignal(AbortSignal.timeout(15000));
 
   return {
     projects: data ?? [],
@@ -74,7 +75,8 @@ export async function getFeaturedProjects() {
     .select(adminProjectFields)
     .eq("is_published", true)
     .order("created_at", { ascending: false })
-    .limit(3);
+    .limit(3)
+    .abortSignal(AbortSignal.timeout(15000));
 
   return {
     projects: data ?? [],

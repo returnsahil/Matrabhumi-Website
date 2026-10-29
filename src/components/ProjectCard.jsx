@@ -1,26 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-export function ProjectCard({ project }) {
+export function ProjectCard({ project, quote, exploreLabel }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [loadedLightboxImage, setLoadedLightboxImage] = useState("");
-  const cardRef = useRef(null);
   const openButtonRef = useRef(null);
+  const lastTriggerRef = useRef(null);
   const closeButtonRef = useRef(null);
   const touchStartX = useRef(null);
-  const preloadedImages = useRef(new Set());
-
-  const preloadProjectImages = useCallback(() => {
-    project.images.forEach((projectImage) => {
-      if (preloadedImages.current.has(projectImage.url)) return;
-
-      preloadedImages.current.add(projectImage.url);
-      const image = new Image();
-      image.src = projectImage.url;
-      image.decode?.().catch(() => undefined);
-    });
-  }, [project.images]);
 
   const shiftImage = useCallback(
     (direction) => {
@@ -33,8 +21,8 @@ export function ProjectCard({ project }) {
     [project.images.length],
   );
 
-  function openGallery() {
-    preloadProjectImages();
+  function openGallery(event) {
+    lastTriggerRef.current = event.currentTarget;
     const coverIndex = project.images.findIndex(
       (image) => image.id === project.coverImageId,
     );
@@ -44,7 +32,7 @@ export function ProjectCard({ project }) {
 
   const closeGallery = useCallback(() => {
     setIsGalleryOpen(false);
-    requestAnimationFrame(() => openButtonRef.current?.focus());
+    requestAnimationFrame(() => (lastTriggerRef.current ?? openButtonRef.current)?.focus());
   }, []);
 
   function handleTouchStart(event) {
@@ -67,25 +55,18 @@ export function ProjectCard({ project }) {
   }
 
   useEffect(() => {
-    const card = cardRef.current;
-
-    if (!card || !("IntersectionObserver" in window)) {
-      preloadProjectImages();
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        preloadProjectImages();
-        observer.disconnect();
-      },
-      { rootMargin: "400px 0px" },
-    );
-
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, [preloadProjectImages]);
+    if (!isGalleryOpen || project.images.length < 2) return;
+    // Only warm the adjacent slides after the visitor opens a gallery.
+    const neighbors = new Set([
+      (activeImageIndex + 1) % project.images.length,
+      (activeImageIndex - 1 + project.images.length) % project.images.length,
+    ]);
+    neighbors.forEach((index) => {
+      const image = new Image();
+      image.fetchPriority = "low";
+      image.src = project.images[index].url;
+    });
+  }, [isGalleryOpen, activeImageIndex, project.images]);
 
   useEffect(() => {
     if (!isGalleryOpen) return undefined;
@@ -200,12 +181,15 @@ export function ProjectCard({ project }) {
 
   return (
     <>
-      <div
-        className="project-card"
-        ref={cardRef}
-        onPointerEnter={preloadProjectImages}
-        onFocusCapture={preloadProjectImages}
-      >
+      <article className="project-card project-card--editorial">
+        <div className="project-info">
+          <p className="project-meta">
+            {String(project.number).padStart(2, "0")} / {project.statusLabel}
+          </p>
+          <h2>{project.title}</h2>
+          {project.location && <p className="project-location">{project.location}</p>}
+          {quote && <p className="project-quote">{quote}</p>}
+        </div>
         <button
           className="project-card-cover"
           ref={openButtonRef}
@@ -217,34 +201,21 @@ export function ProjectCard({ project }) {
             src={coverImage.url}
             alt={coverImage.alt}
             loading={project.number === 1 ? "eager" : "lazy"}
+            fetchPriority={project.number === 1 ? "high" : "auto"}
             decoding="async"
             draggable="false"
           />
         </button>
 
-        <div className="project-info">
-          <p className="project-meta">
-            {String(project.number).padStart(2, "0")} / {project.statusLabel}
-          </p>
-          <h2>{project.title}</h2>
+        <div className="project-more">
           {project.description && <p>{project.description}</p>}
-          {(project.location || project.completion_year) && (
-            <p className="project-details">
-              {project.location && <span>{project.location}</span>}
-              {project.location && project.completion_year && (
-                <span aria-hidden="true">•</span>
-              )}
-              {project.completion_year && (
-                <span>{project.completion_year}</span>
-              )}
-            </p>
-          )}
+          {project.completion_year && <p className="project-details">{project.completion_year}</p>}
+          <button className="project-explore" type="button" onClick={openGallery}>
+            <span>{exploreLabel}</span>
+            <span className="project-explore-arrow" aria-hidden="true">↗</span>
+          </button>
         </div>
-
-        <span className="project-arrow" aria-hidden="true">
-          ↗
-        </span>
-      </div>
+      </article>
 
       {gallery}
     </>

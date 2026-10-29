@@ -1,25 +1,23 @@
 import { supabase } from "../lib/supabase.js";
+import {
+  defaultHomepageSettings,
+  homepageSettingsChangeEvent,
+} from "../content/homepageSettingsConfig.js";
+
+export { defaultHomepageSettings, homepageSettingsChangeEvent };
 
 const homepageSettingsId = "homepage";
 const siteAssetBucket = "site-assets";
-export const homepageSettingsChangeEvent =
-  "matrabhumi-homepage-settings-changed";
 const homepageSettingsFields =
   "id, hero_line_en, hero_line_hi, hero_image_path, updated_at";
-
-export const defaultHomepageSettings = {
-  id: homepageSettingsId,
-  hero_line_en: "",
-  hero_line_hi: "",
-  hero_image_path: null,
-};
 
 export async function getHomepageSettings() {
   const { data, error } = await supabase
     .from("site_settings")
     .select(homepageSettingsFields)
     .eq("id", homepageSettingsId)
-    .maybeSingle();
+    .maybeSingle()
+    .abortSignal(AbortSignal.timeout(15000));
 
   return {
     settings: data ?? defaultHomepageSettings,

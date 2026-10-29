@@ -7,12 +7,36 @@ function Navbar({
   brand,
   isDark,
   language,
+  isHome,
+  surface,
   onThemeToggle,
   onLanguageToggle,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <header className="navbar">
+    <header className={`navbar navbar--${isHome ? "home" : surface}`}>
+      <div className="nav-actions">
+        <button
+          className="utility-toggle"
+          type="button"
+          aria-label={isDark ? copy.lightMode : copy.darkMode}
+          title={isDark ? copy.lightMode : copy.darkMode}
+          aria-pressed={isDark}
+          onClick={onThemeToggle}
+        >
+          {isDark ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
+        </button>
+        <button
+          className="utility-toggle language-toggle"
+          type="button"
+          aria-label={copy.languageLabel}
+          title={copy.languageLabel}
+          aria-pressed={language === "hi"}
+          onClick={onLanguageToggle}
+        >
+          {copy.language}
+        </button>
+      </div>
       <h1 className="brand">
         <NavLink
           className="brand-home"
@@ -30,7 +54,19 @@ function Navbar({
           <span>{brand}</span>
         </NavLink>
       </h1>
+      <button
+        className="menu-toggle"
+        type="button"
+        aria-label={menuOpen ? copy.closeMenu : copy.openMenu}
+        aria-expanded={menuOpen}
+        aria-controls="main-navigation"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        <span className="menu-toggle-label">{language === "hi" ? "मेनू" : "Menu"}</span>
+        <span className="menu-toggle-mark" aria-hidden="true">{menuOpen ? "×" : "◆"}</span>
+      </button>
       <nav
+        id="main-navigation"
         className={menuOpen ? "nav-menu open" : "nav-menu"}
         aria-label={copy.navigation}
       >
@@ -57,37 +93,6 @@ function Navbar({
           </li>
         </ul>
       </nav>
-      <div className="nav-actions">
-        <button
-          className="utility-toggle"
-          type="button"
-          aria-label={isDark ? copy.lightMode : copy.darkMode}
-          title={isDark ? copy.lightMode : copy.darkMode}
-          aria-pressed={isDark}
-          onClick={onThemeToggle}
-        >
-          {isDark ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
-        </button>
-        <button
-          className="utility-toggle language-toggle"
-          type="button"
-          aria-label={copy.languageLabel}
-          title={copy.languageLabel}
-          aria-pressed={language === "hi"}
-          onClick={onLanguageToggle}
-        >
-          {copy.language}
-        </button>
-      </div>
-      <button
-        className="menu-toggle"
-        type="button"
-        aria-label={menuOpen ? copy.closeMenu : copy.openMenu}
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
-      </button>
     </header>
   );
 }

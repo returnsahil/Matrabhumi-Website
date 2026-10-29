@@ -1,12 +1,10 @@
 import "./App.css";
-import Footer from "./components/Footer.jsx";
 import Hero from "./components/Hero.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { Routes, Route, useLocation } from "react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { siteCopy } from "./content/siteCopy.js";
 import NotFound from "./components/NotFound.jsx";
-import Seo from "./components/Seo.jsx";
 
 const About = lazy(() => import("./components/About.jsx"));
 const Contact = lazy(() => import("./components/Contact.jsx"));
@@ -20,7 +18,8 @@ function App() {
   const isKnownPublicRoute = ["/", "/about", "/projects", "/contact"].includes(
     normalizedPath,
   );
-  const showSiteChrome = !isAdminRoute && isKnownPublicRoute;
+  const isContactRoute = normalizedPath === "/contact";
+  const showSiteChrome = !isAdminRoute && isKnownPublicRoute && !isContactRoute;
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("matrabhumi-theme");
     if (savedTheme) return savedTheme === "dark";
@@ -30,6 +29,12 @@ function App() {
     () => localStorage.getItem("matrabhumi-language") || "en",
   );
   const copy = siteCopy[language];
+
+  useEffect(() => {
+    document.title =
+      copy.pageTitles[location.pathname] ||
+      (isAdminRoute ? `Admin | ${copy.brand}` : copy.pageTitles.notFound);
+  }, [copy, isAdminRoute, location.pathname]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? "dark" : "light";
@@ -43,13 +48,14 @@ function App() {
 
   return (
     <div className="site-wrapper">
-      <Seo copy={copy} language={language} pathname={location.pathname} />
       {showSiteChrome && (
         <Navbar
           copy={copy.nav}
           brand={copy.brand}
           isDark={isDark}
           language={language}
+          isHome={normalizedPath === "/"}
+          surface={normalizedPath === "/about" ? "about" : "projects"}
           onThemeToggle={() => setIsDark((current) => !current)}
           onLanguageToggle={() =>
             setLanguage((current) => (current === "en" ? "hi" : "en"))
@@ -57,16 +63,7 @@ function App() {
         />
       )}
       <main className={isAdminRoute ? "admin-main" : undefined}>
-        <Suspense
-          fallback={
-            <p
-              className={`route-loading${isAdminRoute ? " is-admin" : ""}`}
-              role="status"
-            >
-              Loading…
-            </p>
-          }
-        >
+        <Suspense fallback={<p className="route-loading" role="status">Loading…</p>}>
           <Routes>
             <Route
               path="/"
@@ -82,7 +79,17 @@ function App() {
               path="/about"
               element={<About copy={copy.about} language={language} />}
             />
-            <Route path="/contact" element={<Contact copy={copy.contact} />} />
+            <Route
+              path="/contact"
+              element={
+                <Contact
+                  copy={copy.contact}
+                  brand={copy.brand}
+                  homeLabel={copy.nav.home}
+                  navCopy={copy.nav}
+                />
+              }
+            />
             <Route
               path="/projects"
               element={<Projects copy={copy.projects} language={language} />}
@@ -92,9 +99,6 @@ function App() {
           </Routes>
         </Suspense>
       </main>
-      {showSiteChrome && (
-        <Footer copy={copy.footer} navCopy={copy.nav} brand={copy.brand} />
-      )}
     </div>
   );
 }
